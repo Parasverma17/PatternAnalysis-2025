@@ -6,6 +6,7 @@ import numpy as np
 from skimage.metrics import structural_similarity as ssim
 from typing import List
 import matplotlib.pyplot as plt
+import json
 
 
 def get_device() -> torch.device:
@@ -187,3 +188,40 @@ def visualize_reconstructions(originals: torch.Tensor, reconstructions: torch.Te
     plt.savefig(save_path, dpi=150, bbox_inches='tight')
     plt.close()
     print(f"Reconstruction visualization saved to {save_path}")
+
+
+
+def save_metrics(metrics: Dict, save_path: str):
+    """Save evaluation metrics to JSON file.
+    
+    Args:
+        metrics: Dictionary of metric names and values
+        save_path: Path to save JSON file
+    """
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    
+    with open(save_path, 'w') as f:
+        json.dump(metrics, f, indent=4)
+    
+    print(f"Metrics saved to {save_path}")
+
+
+def print_model_summary(model: torch.nn.Module):
+    """Print model architecture summary with parameter counts.
+    
+    Args:
+        model: PyTorch model
+    """
+    print("\n" + "="*70)
+    print("MODEL ARCHITECTURE SUMMARY")
+    print("="*70)
+    print(model)
+    print("="*70)
+    
+    total_params = sum(p.numel() for p in model.parameters())
+    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    
+    print(f"Total parameters: {total_params:,}")
+    print(f"Trainable parameters: {trainable_params:,}")
+    print("="*70 + "\n")
+
