@@ -169,3 +169,57 @@ class VectorQuantizer(nn.Module):
         quantized = quantized.permute(0, 3, 1, 2).contiguous()
         
         return quantized, vq_loss, perplexity
+
+
+class Decoder(nn.Module):
+    """Convolutional decoder for VQ-VAE.
+    
+    Upsamples quantized latents back to original image resolution using
+    transposed convolutions and residual blocks.
+    
+    Args:
+        embedding_dim: Dimension of input embeddings (from VQ layer)
+        hidden_dims: List of channel dimensions (reversed from encoder)
+        out_channels: Number of output channels (1 for grayscale MRI)
+    """
+    
+    def __init__(self, embedding_dim: int = 64, hidden_dims: list = [128, 64, 32],
+                 out_channels: int = 1):
+        super().__init__()
+        
+        modules = []
+        
+        # Initial processing
+        modules.append(
+            nn.Sequential(
+                nn.Conv2d(embedding_dim, hidden_dims[0], kernel_size=3, padding=1),
+                ResidualBlock(hidden_dims[0])
+            )
+        )
+        
+        # Upsampling layers with residual blocks
+        for i in range(len(hidden_dims) - 1):
+            modules.append(
+                nn.Sequential(
+                    ResidualBlock(hidden_dims[i]),
+                    ResidualBlock(hidden_dims[i]),
+                    nn.ConvTranspose2d(hidden_dims[i], hidden_dims[i+1], 
+                                     kernel_size=4, stride=2, padding=1),
+                    nn.BatchNorm2d(hidden_dims[i+1]),
+                    nn.ReLU()
+                )
+            )
+        
+        # Final upsampling to original resolution
+        modules.append(
+            nn.Sequential(
+                nn.ConvTranspose2d(hidden_dims[-1], out_channels, 
+                                 kernel_size=4, stride=2, padding=1),
+                nn.Sigmoid()  # Output in [0, 1] range
+            )
+        )
+        
+        self.decoder = nn.Sequential(*modules)
+    
+    def forward(self, z_q: torch.Tensor) -> torch.Tensor:
+        return self.decoder(z_q)
