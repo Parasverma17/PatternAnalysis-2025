@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+
+# Outputs
+outputs/
+logs/
+*.pt
+*.pth
+*.pkl
+
+# Data
+data/
+*.nii
+*.nii.gz
+
+# IDE
+.vscode/
+.idea/
+*.swp
