@@ -4,6 +4,8 @@ import os
 import torch
 import numpy as np
 from skimage.metrics import structural_similarity as ssim
+from typing import List
+import matplotlib.pyplot as plt
 
 
 def get_device() -> torch.device:
@@ -94,3 +96,94 @@ def calculate_batch_ssim(originals: torch.Tensor, reconstructions: torch.Tensor)
         ssim_scores.append(score)
     
     return np.mean(ssim_scores)
+
+
+def plot_training_history(history: Dict[str, List[float]], save_path: str):
+    """Plot training and validation losses over epochs.
+    
+    Args:
+        history: Dictionary with keys like 'train_loss', 'val_loss', 'train_ssim', etc.
+        save_path: Path to save the plot (PNG)
+    """
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+    
+    # Plot losses
+    if 'train_recon_loss' in history:
+        axes[0].plot(history['train_recon_loss'], label='Train Recon Loss', linewidth=2)
+    if 'val_recon_loss' in history:
+        axes[0].plot(history['val_recon_loss'], label='Val Recon Loss', linewidth=2)
+    if 'train_total_loss' in history:
+        axes[0].plot(history['train_total_loss'], label='Train Total Loss', 
+                    linewidth=2, linestyle='--')
+    
+    axes[0].set_xlabel('Epoch', fontsize=12)
+    axes[0].set_ylabel('Loss', fontsize=12)
+    axes[0].set_title('Training and Validation Losses', fontsize=14, fontweight='bold')
+    axes[0].legend()
+    axes[0].grid(True, alpha=0.3)
+    
+    # Plot SSIM
+    if 'train_ssim' in history:
+        axes[1].plot(history['train_ssim'], label='Train SSIM', linewidth=2)
+    if 'val_ssim' in history:
+        axes[1].plot(history['val_ssim'], label='Val SSIM', linewidth=2)
+    
+    # Add target line at SSIM = 0.6
+    axes[1].axhline(y=0.6, color='r', linestyle='--', label='Target (0.6)', linewidth=2)
+    
+    axes[1].set_xlabel('Epoch', fontsize=12)
+    axes[1].set_ylabel('SSIM', fontsize=12)
+    axes[1].set_title('Structural Similarity Index', fontsize=14, fontweight='bold')
+    axes[1].legend()
+    axes[1].grid(True, alpha=0.3)
+    axes[1].set_ylim([0, 1])
+    
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=150, bbox_inches='tight')
+    plt.close()
+    print(f"Training history plot saved to {save_path}")
+
+
+def visualize_reconstructions(originals: torch.Tensor, reconstructions: torch.Tensor, 
+                              save_path: str, num_samples: int = 8):
+    """Visualize original and reconstructed MRI slices side by side.
+    
+    Args:
+        originals: Batch of original images (B, C, H, W)
+        reconstructions: Batch of reconstructed images (B, C, H, W)
+        save_path: Path to save visualization
+        num_samples: Number of samples to visualize
+    """
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    
+    originals = originals.detach().cpu().numpy()
+    reconstructions = reconstructions.detach().cpu().numpy()
+    
+    num_samples = min(num_samples, originals.shape[0])
+    
+    fig, axes = plt.subplots(2, num_samples, figsize=(2*num_samples, 4))
+    
+    for i in range(num_samples):
+        # Original
+        axes[0, i].imshow(originals[i, 0], cmap='gray')
+        axes[0, i].axis('off')
+        if i == 0:
+            axes[0, i].set_title('Original', fontsize=10, fontweight='bold')
+        
+        # Reconstruction
+        axes[1, i].imshow(reconstructions[i, 0], cmap='gray')
+        axes[1, i].axis('off')
+        
+        # Calculate and display SSIM for each pair
+        ssim_val = calculate_ssim(originals[i, 0], reconstructions[i, 0])
+        if i == 0:
+            axes[1, i].set_title(f'Recon\nSSIM: {ssim_val:.3f}', fontsize=10, fontweight='bold')
+        else:
+            axes[1, i].set_title(f'SSIM: {ssim_val:.3f}', fontsize=9)
+    
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=150, bbox_inches='tight')
+    plt.close()
+    print(f"Reconstruction visualization saved to {save_path}")
