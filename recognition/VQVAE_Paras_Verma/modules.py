@@ -93,3 +93,79 @@ class Encoder(nn.Module):
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.encoder(x)
+
+class VectorQuantizer(nn.Module):
+    """Vector Quantization layer for VQ-VAE.
+    
+    Maintains a codebook of embedding vectors and quantizes encoder outputs
+    to the nearest codebook entry. Implements straight-through estimator
+    for backpropagation.
+    
+    Args:
+        num_embeddings: Size of the codebook (K)
+        embedding_dim: Dimension of each embedding vector (D)
+        commitment_cost: Weight for commitment loss (beta)
+    """
+    
+    def __init__(self, num_embeddings: int = 512, embedding_dim: int = 64, 
+                 commitment_cost: float = 0.25):
+        super().__init__()
+        self.embedding_dim = embedding_dim
+        self.num_embeddings = num_embeddings
+        self.commitment_cost = commitment_cost
+        
+        # Initialize codebook with uniform distribution
+        self.embedding = nn.Embedding(num_embeddings, embedding_dim)
+        self.embedding.weight.data.uniform_(-1.0 / num_embeddings, 1.0 / num_embeddings)
+    
+    def forward(self, z: torch.Tensor):
+        """Quantize continuous latents to discrete codebook entries.
+        
+        Args:
+            z: Encoder output of shape (B, D, H, W)
+            
+        Returns:
+            quantized: Quantized latents (B, D, H, W)
+            vq_loss: Vector quantization loss
+            perplexity: Codebook usage metric
+        """
+        # Convert from (B, D, H, W) to (B, H, W, D)
+        z = z.permute(0, 2, 3, 1).contiguous()
+        z_flattened = z.view(-1, self.embedding_dim)
+        
+        # Calculate distances to codebook entries
+        # ||z - e||^2 = ||z||^2 + ||e||^2 - 2*z*e
+        distances = (
+            torch.sum(z_flattened ** 2, dim=1, keepdim=True)
+            + torch.sum(self.embedding.weight ** 2, dim=1)
+            - 2 * torch.matmul(z_flattened, self.embedding.weight.t())
+        )
+        
+        # Find nearest codebook entry
+        encoding_indices = torch.argmin(distances, dim=1)
+        
+        # Quantize and reshape
+        quantized = self.embedding(encoding_indices).view(z.shape)
+        
+        # Calculate VQ losses
+        # Codebook loss: ||sg[z] - e||^2
+        codebook_loss = F.mse_loss(quantized.detach(), z)
+        
+        # Commitment loss: ||z - sg[e]||^2
+        commitment_loss = F.mse_loss(quantized, z.detach())
+        
+        vq_loss = codebook_loss + self.commitment_cost * commitment_loss
+        
+        # Straight-through estimator: copy gradients from quantized to z
+        quantized = z + (quantized - z).detach()
+        
+        # Calculate perplexity (measure of codebook usage)
+        avg_probs = torch.mean(
+            F.one_hot(encoding_indices, self.num_embeddings).float(), dim=0
+        )
+        perplexity = torch.exp(-torch.sum(avg_probs * torch.log(avg_probs + 1e-10)))
+        
+        # Convert back to (B, D, H, W)
+        quantized = quantized.permute(0, 3, 1, 2).contiguous()
+        
+        return quantized, vq_loss, perplexity
