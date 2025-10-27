@@ -223,3 +223,65 @@ class Decoder(nn.Module):
     
     def forward(self, z_q: torch.Tensor) -> torch.Tensor:
         return self.decoder(z_q)
+
+
+class VQVAE(nn.Module):
+    """Complete VQ-VAE model for HipMRI 2D prostate slice generation.
+    
+    Implements the full VQ-VAE architecture with encoder, vector quantization,
+    and decoder. Designed to achieve SSIM > 0.6 on medical imaging data.
+    
+    Args:
+        in_channels: Number of input channels (1 for grayscale)
+        hidden_dims: Channel dimensions for encoder/decoder layers
+        embedding_dim: Dimension of latent embeddings
+        num_embeddings: Size of discrete codebook
+        commitment_cost: Beta parameter for commitment loss
+    
+    Example:
+        >>> model = VQVAE(in_channels=1, num_embeddings=512, embedding_dim=64)
+        >>> x = torch.randn(4, 1, 256, 256)
+        >>> recon, vq_loss, perplexity = model(x)
+        >>> print(f"Reconstruction: {recon.shape}, VQ Loss: {vq_loss.item():.4f}")
+    """
+    
+    def __init__(self, in_channels: int = 1, hidden_dims: list = [32, 64, 128],
+                 embedding_dim: int = 64, num_embeddings: int = 512,
+                 commitment_cost: float = 0.25):
+        super().__init__()
+        
+        self.encoder = Encoder(in_channels, hidden_dims, embedding_dim)
+        self.vq_layer = VectorQuantizer(num_embeddings, embedding_dim, commitment_cost)
+        self.decoder = Decoder(embedding_dim, list(reversed(hidden_dims)), in_channels)
+    
+    def forward(self, x: torch.Tensor):
+        """Forward pass through VQ-VAE.
+        
+        Args:
+            x: Input images of shape (B, C, H, W)
+            
+        Returns:
+            recon: Reconstructed images (B, C, H, W)
+            vq_loss: Vector quantization loss
+            perplexity: Codebook usage metric
+        """
+        # Encode
+        z = self.encoder(x)
+        
+        # Quantize
+        z_q, vq_loss, perplexity = self.vq_layer(z)
+        
+        # Decode
+        recon = self.decoder(z_q)
+        
+        return recon, vq_loss, perplexity
+    
+    def encode(self, x: torch.Tensor) -> torch.Tensor:
+        """Encode input to quantized latents."""
+        z = self.encoder(x)
+        z_q, _, _ = self.vq_layer(z)
+        return z_q
+    
+    def decode(self, z_q: torch.Tensor) -> torch.Tensor:
+        """Decode quantized latents to images."""
+        return self.decoder(z_q)
