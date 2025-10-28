@@ -290,3 +290,48 @@ def main(args):
     print(f"  - SSIM distribution: {dist_path}")
     print(f"{'='*70}\n")
 
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='Evaluate trained VQ-VAE model on test set'
+    )
+    
+    # Required arguments
+    parser.add_argument('--checkpoint', type=str, required=True,
+                       help='Path to model checkpoint (.pt file)')
+    parser.add_argument('--data-dir', type=str, required=True,
+                       help='Path to HipMRI keras_slices_data directory')
+    
+    # Output arguments
+    parser.add_argument('--output', type=str, 
+                       default='recognition/outputs/predictions',
+                       help='Directory to save predictions and visualizations')
+    
+    # Data arguments
+    parser.add_argument('--image-size', type=int, default=256,
+                       help='Image size (default: 256)')
+    parser.add_argument('--max-samples', type=int, default=None,
+                       help='Limit number of test samples for quick testing')
+    
+    # Model arguments (must match training config)
+    parser.add_argument('--hidden-dims', type=int, nargs='+', 
+                       default=[32, 64, 128],
+                       help='Hidden dimensions (default: 32 64 128)')
+    parser.add_argument('--embedding-dim', type=int, default=64,
+                       help='Embedding dimension (default: 64)')
+    parser.add_argument('--num-embeddings', type=int, default=512,
+                       help='Codebook size (default: 512)')
+    parser.add_argument('--commitment-cost', type=float, default=0.25,
+                       help='Commitment cost (default: 0.25)')
+    
+    # Evaluation arguments
+    parser.add_argument('--batch-size', type=int, default=16,
+                       help='Batch size for evaluation (default: 16)')
+    parser.add_argument('--num-workers', type=int, default=4,
+                       help='Number of data loading workers (default: 4)')
+    parser.add_argument('--num-visualize', type=int, default=16,
+                       help='Number of samples to visualize (default: 16)')
+    
+    args = parser.parse_args()
+    main(args)
+
