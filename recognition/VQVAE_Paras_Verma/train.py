@@ -159,3 +159,95 @@ def validate(model, loader, device):
     }
     
     return metrics
+
+
+def main(args):
+    """Main training function."""
+    # Setup
+    device = get_device()
+    print(f"\n{'='*70}")
+    print("VQ-VAE TRAINING FOR HIPMRI 2D PROSTATE SLICES")
+    print(f"{'='*70}")
+    print(f"Device: {device}")
+    print(f"Data directory: {args.data_dir}")
+    print(f"Epochs: {args.epochs}")
+    print(f"Batch size: {args.batch_size}")
+    print(f"Learning rate: {args.lr}")
+    print(f"{'='*70}\n")
+    
+    # Create output directories
+    out_dir = Path(args.output_dir)
+    ckpt_dir = out_dir / 'checkpoints'
+    vis_dir = out_dir / 'visualizations'
+    ckpt_dir.mkdir(parents=True, exist_ok=True)
+    vis_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Load datasets
+    print("Loading datasets...")
+    train_dataset = HipMRIDataset(
+        args.data_dir, 
+        split='train',
+        image_size=args.image_size,
+        max_samples=args.max_samples
+    )
+    
+    val_dataset = HipMRIDataset(
+        args.data_dir,
+        split='val',
+        image_size=args.image_size,
+        max_samples=args.max_samples
+    )
+    
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=args.batch_size,
+        shuffle=True,
+        num_workers=args.num_workers,
+        pin_memory=True if torch.cuda.is_available() else False
+    )
+    
+    val_loader = DataLoader(
+        val_dataset,
+        batch_size=args.batch_size,
+        shuffle=False,
+        num_workers=args.num_workers,
+        pin_memory=True if torch.cuda.is_available() else False
+    )
+    
+    print(f"Train samples: {len(train_dataset)}")
+    print(f"Val samples: {len(val_dataset)}")
+    print(f"Train batches: {len(train_loader)}")
+    print(f"Val batches: {len(val_loader)}\n")
+    
+    # Create model
+    print("Building VQ-VAE model...")
+    model = VQVAE(
+        in_channels=1,
+        hidden_dims=args.hidden_dims,
+        embedding_dim=args.embedding_dim,
+        num_embeddings=args.num_embeddings,
+        commitment_cost=args.commitment_cost
+    ).to(device)
+    
+    print_model_summary(model)
+    
+    # Optimizer and scheduler
+    optimizer = optim.Adam(model.parameters(), lr=args.lr)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, mode='max', factor=0.5, patience=5, verbose=True
+    )
+    
+    # Training history
+    history = defaultdict(list)
+    best_ssim = 0.0
+    start_epoch = 1
+    
+    # Resume from checkpoint if specified
+    if args.resume:
+        print(f"Resuming from checkpoint: {args.resume}")
+        ckpt = load_checkpoint(args.resume, model, optimizer)
+        start_epoch = ckpt.get('epoch', 0) + 1
+        best_ssim = ckpt.get('best_ssim', 0.0)
+        if 'history' in ckpt:
+            history = ckpt['history']
+        print(f"Resumed from epoch {start_epoch-1}, best SSIM: {best_ssim:.3f}\n")
