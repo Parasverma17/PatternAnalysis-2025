@@ -91,3 +91,55 @@ class HipMRIDataset(Dataset):
     
     def __len__(self) -> int:
         return len(self.files)
+
+
+    def __getitem__(self, idx: int) -> torch.Tensor:
+        """Load and preprocess a single MRI slice.
+        
+        Returns:
+            Tensor of shape (1, H, W) normalized to [0, 1] range
+        """
+        filepath = self.files[idx]
+        
+        try:
+            # Load NIfTI file
+            nii_img = nib.load(filepath)
+            img = nii_img.get_fdata(caching='unchanged')
+            
+            # Handle different dimensions
+            if img.ndim == 3:
+                # Take middle slice if 3D volume
+                img = img[:, :, img.shape[2] // 2]
+            elif img.ndim > 3:
+                # Remove extra dimensions
+                img = img[:, :, 0, 0] if img.ndim == 4 else img[:, :, 0]
+            
+            # Convert to float32
+            img = img.astype(np.float32)
+            
+            # Normalize to [0, 1] range
+            if self.normalize:
+                img_min, img_max = img.min(), img.max()
+                if img_max > img_min:
+                    img = (img - img_min) / (img_max - img_min)
+                else:
+                    img = np.zeros_like(img)
+            
+            # Resize to target size using PIL for better quality
+            img_pil = Image.fromarray((img * 255).astype(np.uint8))
+            img_pil = img_pil.resize((self.image_size, self.image_size), Image.BILINEAR)
+            img = np.array(img_pil).astype(np.float32) / 255.0
+            
+            # Convert to tensor: (C, H, W)
+            tensor = torch.from_numpy(img).unsqueeze(0)
+            
+            # Apply optional transforms
+            if self.transform:
+                tensor = self.transform(tensor)
+            
+            return tensor
+            
+        except Exception as e:
+            print(f"Error loading {filepath}: {e}")
+            # Return blank image on error
+            return torch.zeros(1, self.image_size, self.image_size)
