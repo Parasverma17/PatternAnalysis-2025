@@ -143,3 +143,85 @@ class HipMRIDataset(Dataset):
             print(f"Error loading {filepath}: {e}")
             # Return blank image on error
             return torch.zeros(1, self.image_size, self.image_size)
+
+
+class HipMRIPNGDataset(Dataset):
+    """Alternative dataset loader for PNG/JPG format MRI slices.
+    
+    Use this if the keras_slices_data folder contains PNG or JPG files
+    instead of NIfTI format.
+    
+    Args:
+        data_dir: Path to folder containing PNG/JPG images
+        split: One of 'train', 'val', or 'test'
+        image_size: Target size for resizing
+        transform: Optional transforms
+    """
+    
+    def __init__(
+        self,
+        data_dir: str,
+        split: str = 'train',
+        image_size: int = 256,
+        transform: Optional[Callable] = None,
+        max_samples: Optional[int] = None
+    ):
+        super().__init__()
+        self.data_dir = data_dir
+        self.split = split
+        self.image_size = image_size
+        self.transform = transform
+        
+        # Find PNG and JPG files
+        patterns = ['*.png', '*.jpg', '*.jpeg', '*.PNG', '*.JPG', '*.JPEG']
+        all_files = []
+        for pattern in patterns:
+            all_files.extend(glob.glob(os.path.join(data_dir, '**', pattern), recursive=True))
+        
+        all_files.sort()
+        
+        if len(all_files) == 0:
+            raise RuntimeError(f"No image files found in {data_dir}")
+        
+        print(f"Found {len(all_files)} image files")
+        
+        # Split data
+        n = len(all_files)
+        train_end = int(0.8 * n)
+        val_end = int(0.9 * n)
+        
+        if split == 'train':
+            self.files = all_files[:train_end]
+        elif split == 'val':
+            self.files = all_files[train_end:val_end]
+        else:
+            self.files = all_files[val_end:]
+        
+        if max_samples:
+            self.files = self.files[:max_samples]
+        
+        print(f"{split} split: {len(self.files)} samples")
+    
+    def __len__(self) -> int:
+        return len(self.files)
+    
+    def __getitem__(self, idx: int) -> torch.Tensor:
+        filepath = self.files[idx]
+        
+        try:
+            # Load image
+            img = Image.open(filepath).convert('L')  # Convert to grayscale
+            img = img.resize((self.image_size, self.image_size), Image.BILINEAR)
+            
+            # Convert to tensor and normalize to [0, 1]
+            img_array = np.array(img).astype(np.float32) / 255.0
+            tensor = torch.from_numpy(img_array).unsqueeze(0)
+            
+            if self.transform:
+                tensor = self.transform(tensor)
+            
+            return tensor
+            
+        except Exception as e:
+            print(f"Error loading {filepath}: {e}")
+            return torch.zeros(1, self.image_size, self.image_size)
