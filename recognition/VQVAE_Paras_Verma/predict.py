@@ -174,3 +174,56 @@ def plot_ssim_distribution(ssim_scores, save_path, target=0.6):
     plt.close()
     print(f"SSIM distribution plot saved to {save_path}")
 
+
+def main(args):
+    """Main evaluation pipeline."""
+    print(f"\n{'='*70}")
+    print("VQ-VAE MODEL EVALUATION")
+    print(f"{'='*70}")
+    
+    # Setup
+    device = get_device()
+    output_dir = Path(args.output)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    print(f"Device: {device}")
+    print(f"Checkpoint: {args.checkpoint}")
+    print(f"Data directory: {args.data_dir}")
+    print(f"Output directory: {output_dir}")
+    print(f"{'='*70}\n")
+    
+    # Load dataset
+    print("Loading test dataset...")
+    test_dataset = HipMRIDataset(
+        args.data_dir,
+        split='test',
+        image_size=args.image_size,
+        max_samples=args.max_samples
+    )
+    
+    test_loader = DataLoader(
+        test_dataset,
+        batch_size=args.batch_size,
+        shuffle=False,
+        num_workers=args.num_workers
+    )
+    
+    print(f"Test samples: {len(test_dataset)}")
+    print(f"Test batches: {len(test_loader)}\n")
+    
+    # Load model
+    print("Loading VQ-VAE model...")
+    model = VQVAE(
+        in_channels=1,
+        hidden_dims=args.hidden_dims,
+        embedding_dim=args.embedding_dim,
+        num_embeddings=args.num_embeddings,
+        commitment_cost=args.commitment_cost
+    ).to(device)
+    
+    # Load checkpoint
+    ckpt = load_checkpoint(args.checkpoint, model=model)
+    epoch = ckpt.get('epoch', 'unknown')
+    best_ssim = ckpt.get('best_ssim', 'unknown')
+    print(f"Loaded checkpoint from epoch {epoch}, best SSIM: {best_ssim}\n")
+
