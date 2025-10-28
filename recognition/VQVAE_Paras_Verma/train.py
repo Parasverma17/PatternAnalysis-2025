@@ -359,3 +359,52 @@ def main(args):
     print(f"Checkpoints saved to: {ckpt_dir}")
     print(f"Visualizations saved to: {vis_dir}")
     print(f"{'='*70}\n")
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='Train VQ-VAE on HipMRI 2D prostate slices'
+    )
+    
+    # Data arguments
+    parser.add_argument('--data-dir', type=str, required=True,
+                       help='Path to HipMRI keras_slices_data directory')
+    parser.add_argument('--image-size', type=int, default=256,
+                       help='Size to resize images (default: 256)')
+    parser.add_argument('--max-samples', type=int, default=None,
+                       help='Limit number of samples for quick testing')
+    
+    # Model arguments
+    parser.add_argument('--hidden-dims', type=int, nargs='+', default=[32, 64, 128],
+                       help='Hidden dimensions for encoder/decoder (default: 32 64 128)')
+    parser.add_argument('--embedding-dim', type=int, default=64,
+                       help='Dimension of latent embeddings (default: 64)')
+    parser.add_argument('--num-embeddings', type=int, default=512,
+                       help='Size of codebook (default: 512)')
+    parser.add_argument('--commitment-cost', type=float, default=0.25,
+                       help='Beta parameter for commitment loss (default: 0.25)')
+    
+    # Training arguments
+    parser.add_argument('--epochs', type=int, default=50,
+                       help='Number of training epochs (default: 50)')
+    parser.add_argument('--batch-size', type=int, default=16,
+                       help='Batch size (default: 16)')
+    parser.add_argument('--lr', type=float, default=2e-4,
+                       help='Learning rate (default: 2e-4)')
+    parser.add_argument('--num-workers', type=int, default=4,
+                       help='Number of data loading workers (default: 4)')
+    
+    # Checkpoint arguments
+    parser.add_argument('--output-dir', type=str, default='recognition/outputs',
+                       help='Directory for outputs (default: recognition/outputs)')
+    parser.add_argument('--resume', type=str, default=None,
+                       help='Path to checkpoint to resume from')
+    parser.add_argument('--save-freq', type=int, default=10,
+                       help='Save checkpoint every N epochs (default: 10)')
+    parser.add_argument('--viz-freq', type=int, default=5,
+                       help='Visualize reconstructions every N epochs (default: 5)')
+    parser.add_argument('--plot-freq', type=int, default=5,
+                       help='Update training plots every N epochs (default: 5)')
+    
+    args = parser.parse_args()
+    main(args)
