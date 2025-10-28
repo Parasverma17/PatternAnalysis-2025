@@ -251,3 +251,111 @@ def main(args):
         if 'history' in ckpt:
             history = ckpt['history']
         print(f"Resumed from epoch {start_epoch-1}, best SSIM: {best_ssim:.3f}\n")
+
+
+    # Training loop
+    print(f"\n{'='*70}")
+    print("STARTING TRAINING")
+    print(f"{'='*70}\n")
+    
+    for epoch in range(start_epoch, args.epochs + 1):
+        epoch_start = time.time()
+        
+        print(f"\nEpoch {epoch}/{args.epochs}")
+        print("-" * 70)
+        
+        # Train
+        train_metrics = train_epoch(model, train_loader, optimizer, device, epoch)
+        
+        # Validate
+        val_metrics = validate(model, val_loader, device)
+        
+        # Update history
+        history['train_total_loss'].append(train_metrics['total_loss'])
+        history['train_recon_loss'].append(train_metrics['recon_loss'])
+        history['train_vq_loss'].append(train_metrics['vq_loss'])
+        history['train_ssim'].append(train_metrics['ssim'])
+        
+        history['val_total_loss'].append(val_metrics['total_loss'])
+        history['val_recon_loss'].append(val_metrics['recon_loss'])
+        history['val_vq_loss'].append(val_metrics['vq_loss'])
+        history['val_ssim'].append(val_metrics['ssim'])
+        
+        # Print epoch summary
+        epoch_time = time.time() - epoch_start
+        print(f"\nEpoch {epoch} Summary ({epoch_time:.1f}s):")
+        print(f"  Train - Loss: {train_metrics['total_loss']:.4f} | "
+              f"Recon: {train_metrics['recon_loss']:.4f} | "
+              f"VQ: {train_metrics['vq_loss']:.4f} | "
+              f"SSIM: {train_metrics['ssim']:.3f}")
+        print(f"  Val   - Loss: {val_metrics['total_loss']:.4f} | "
+              f"Recon: {val_metrics['recon_loss']:.4f} | "
+              f"VQ: {val_metrics['vq_loss']:.4f} | "
+              f"SSIM: {val_metrics['ssim']:.3f}")
+        
+        # Update learning rate
+        scheduler.step(val_metrics['ssim'])
+        
+        # Save checkpoint
+        is_best = val_metrics['ssim'] > best_ssim
+        if is_best:
+            best_ssim = val_metrics['ssim']
+            print(f"  *** New best SSIM: {best_ssim:.3f} ***")
+        
+        # Save regular checkpoint
+        if epoch % args.save_freq == 0:
+            ckpt_path = ckpt_dir / f'checkpoint_epoch{epoch}.pt'
+            save_checkpoint({
+                'epoch': epoch,
+                'model_state': model.state_dict(),
+                'optimizer_state': optimizer.state_dict(),
+                'best_ssim': best_ssim,
+                'history': dict(history)
+            }, str(ckpt_path))
+        
+        # Save best model
+        if is_best:
+            best_path = ckpt_dir / 'best_model.pt'
+            save_checkpoint({
+                'epoch': epoch,
+                'model_state': model.state_dict(),
+                'optimizer_state': optimizer.state_dict(),
+                'best_ssim': best_ssim,
+                'history': dict(history)
+            }, str(best_path))
+        
+        # Visualize reconstructions
+        if epoch % args.viz_freq == 0:
+            viz_path = vis_dir / f'reconstructions_epoch{epoch}.png'
+            visualize_reconstructions(
+                val_metrics['sample_originals'],
+                val_metrics['sample_recons'],
+                str(viz_path),
+                num_samples=8
+            )
+        
+        # Plot training curves
+        if epoch % args.plot_freq == 0:
+            plot_path = out_dir / 'training_history.png'
+            plot_training_history(history, str(plot_path))
+    
+    # Final save
+    final_path = ckpt_dir / 'final_model.pt'
+    save_checkpoint({
+        'epoch': args.epochs,
+        'model_state': model.state_dict(),
+        'optimizer_state': optimizer.state_dict(),
+        'best_ssim': best_ssim,
+        'history': dict(history)
+    }, str(final_path))
+    
+    # Final visualization and plot
+    plot_training_history(history, str(out_dir / 'final_training_history.png'))
+    
+    print(f"\n{'='*70}")
+    print("TRAINING COMPLETE")
+    print(f"{'='*70}")
+    print(f"Best validation SSIM: {best_ssim:.3f}")
+    print(f"Checkpoints saved to: {ckpt_dir}")
+    print(f"Visualizations saved to: {vis_dir}")
+    print(f"{'='*70}\n")
