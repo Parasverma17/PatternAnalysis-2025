@@ -35,13 +35,30 @@ class HipMRIDataset(Dataset):
         transform: Optional torchvision transforms
         max_samples: Limit number of samples (for quick testing)
         val_split: Fraction of training data to use for validation (default: 0.1)
+        seed: Random seed for reproducible train/val split (default: 42)
+        use_provided_val: If True, use keras_slices_validate folder instead of splitting
+                          training data (only applies when split='val')
+    
+    Folder Structure Expected:
+        data_dir/
+        ├── keras_slices_train/       # Training data
+        ├── keras_slices_validate/    # Optional: provided validation set
+        └── keras_slices_test/        # Test data
     
     Example:
+        >>> # Option 1: Use 90/10 split from training data
         >>> dataset = HipMRIDataset(
         ...     data_dir='/home/groups/comp3710/HipMRI_Study_open/keras_slices_data',
-        ...     split='train'
+        ...     split='val',
+        ...     val_split=0.1
         ... )
-        >>> image = dataset[0]
+        >>> 
+        >>> # Option 2: Use provided validation folder
+        >>> dataset = HipMRIDataset(
+        ...     data_dir='/home/groups/comp3710/HipMRI_Study_open/keras_slices_data',
+        ...     split='val',
+        ...     use_provided_val=True
+        ... )
         >>> print(image.shape)  # torch.Size([1, 256, 256])
     """
     
@@ -54,7 +71,8 @@ class HipMRIDataset(Dataset):
         transform: Optional[Callable] = None,
         max_samples: Optional[int] = None,
         val_split: float = 0.1,
-        seed: int = 42
+        seed: int = 42,
+        use_provided_val: bool = False
     ):
         super().__init__()
         self.data_dir = data_dir
@@ -67,8 +85,20 @@ class HipMRIDataset(Dataset):
         random.seed(seed)
         
         # Load from appropriate folders based on split
-        if split in ['train', 'val']:
-            # Load from keras_slices_train folder
+        if split == 'val' and use_provided_val:
+            # Use provided keras_slices_validate folder
+            val_folder = os.path.join(data_dir, 'keras_slices_validate')
+            print(f"Loading from provided validation folder: {val_folder}")
+            pattern = os.path.join(val_folder, '**', '*.nii*')
+            self.files = sorted(glob.glob(pattern, recursive=True))
+            
+            if len(self.files) == 0:
+                raise RuntimeError(f"No NIfTI files found in {val_folder}")
+            
+            print(f"Found {len(self.files)} validation files")
+            
+        elif split in ['train', 'val']:
+            # Load from keras_slices_train folder and split
             train_folder = os.path.join(data_dir, 'keras_slices_train')
             print(f"Loading from training folder: {train_folder}")
             pattern = os.path.join(train_folder, '**', '*.nii*')
@@ -85,6 +115,7 @@ class HipMRIDataset(Dataset):
             
             if split == 'val':
                 self.files = all_files[:n_val]
+                print(f"Using {val_split*100}% of training data for validation")
             else:  # train
                 self.files = all_files[n_val:]
                 

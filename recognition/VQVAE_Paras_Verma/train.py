@@ -196,7 +196,8 @@ def main(args):
         args.data_dir,
         split='val',
         image_size=args.image_size,
-        max_samples=args.max_samples
+        max_samples=args.max_samples,
+        use_provided_val=args.use_provided_val
     )
     
     train_loader = DataLoader(
@@ -393,6 +394,8 @@ if __name__ == '__main__':
                        help='Size to resize images (default: 256)')
     parser.add_argument('--max-samples', type=int, default=None,
                        help='Limit number of samples for quick testing')
+    parser.add_argument('--use-provided-val', action='store_true',
+                       help='Use keras_slices_validate folder instead of splitting training data')
     
     # Model arguments
     parser.add_argument('--hidden-dims', type=int, nargs='+', default=[32, 64, 128],
