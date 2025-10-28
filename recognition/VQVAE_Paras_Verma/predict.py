@@ -124,3 +124,53 @@ def evaluate_model(model, loader, device, num_visualize=16):
     }
     
     return metrics, sample_originals, sample_recons
+
+
+def plot_ssim_distribution(ssim_scores, save_path, target=0.6):
+    """Plot histogram of SSIM scores with statistics.
+    
+    Creates a histogram showing the distribution of SSIM scores across
+    the test set, with target and mean lines highlighted.
+    
+    Args:
+        ssim_scores: List of SSIM scores
+        save_path: Path to save plot
+        target: Target SSIM value to highlight (default: 0.6)
+    """
+    plt.figure(figsize=(10, 6))
+    
+    # Plot histogram
+    plt.hist(ssim_scores, bins=50, edgecolor='black', alpha=0.7, color='skyblue')
+    
+    # Add target line
+    plt.axvline(x=target, color='r', linestyle='--', linewidth=2, 
+                label=f'Target (SSIM={target})')
+    
+    # Add mean line
+    mean_ssim = np.mean(ssim_scores)
+    plt.axvline(x=mean_ssim, color='g', linestyle='--', linewidth=2,
+                label=f'Mean (SSIM={mean_ssim:.3f})')
+    
+    plt.xlabel('SSIM Score', fontsize=12)
+    plt.ylabel('Frequency', fontsize=12)
+    plt.title('Distribution of SSIM Scores on Test Set', 
+             fontsize=14, fontweight='bold')
+    plt.legend(fontsize=11)
+    plt.grid(True, alpha=0.3)
+    
+    # Add text box with statistics
+    pct_above = 100.0 * sum(1 for s in ssim_scores if s >= target) / len(ssim_scores)
+    textstr = f'Total samples: {len(ssim_scores)}\n'
+    textstr += f'Mean: {mean_ssim:.3f}\n'
+    textstr += f'Std: {np.std(ssim_scores):.3f}\n'
+    textstr += f'Above target: {pct_above:.1f}%'
+    
+    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+    plt.text(0.02, 0.98, textstr, transform=plt.gca().transAxes, 
+            fontsize=10, verticalalignment='top', bbox=props)
+    
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=150, bbox_inches='tight')
+    plt.close()
+    print(f"SSIM distribution plot saved to {save_path}")
+
