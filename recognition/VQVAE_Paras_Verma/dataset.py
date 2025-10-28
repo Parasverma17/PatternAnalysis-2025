@@ -91,5 +91,3 @@ class HipMRIDataset(Dataset):
     
     def __len__(self) -> int:
         return len(self.files)
-    
-    
