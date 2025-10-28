@@ -99,15 +99,17 @@ def calculate_batch_ssim(originals: torch.Tensor, reconstructions: torch.Tensor)
     return np.mean(ssim_scores)
 
 
-def plot_training_history(history: Dict[str, List[float]], save_path: str):
+def plot_training_history(history, save_path='training_history.png', save_separate=True):
     """Plot training and validation losses over epochs.
     
     Args:
         history: Dictionary with keys like 'train_loss', 'val_loss', 'train_ssim', etc.
-        save_path: Path to save the plot (PNG)
+        save_path: Path to save the combined plot (PNG)
+        save_separate: If True, also save separate plots for losses and SSIM
     """
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     
+    # Combined plot
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
     
     # Plot losses
@@ -145,10 +147,60 @@ def plot_training_history(history: Dict[str, List[float]], save_path: str):
     plt.savefig(save_path, dpi=150, bbox_inches='tight')
     plt.close()
     print(f"Training history plot saved to {save_path}")
+    
+    # Save separate plots for markdown
+    if save_separate:
+        base_dir = os.path.dirname(save_path)
+        markdown_dir = os.path.join(os.path.dirname(os.path.dirname(base_dir)), 'markdown_images')
+        os.makedirs(markdown_dir, exist_ok=True)
+        
+        # Separate loss plot
+        fig_loss, ax_loss = plt.subplots(figsize=(10, 6))
+        if 'train_recon_loss' in history:
+            ax_loss.plot(history['train_recon_loss'], label='Train Reconstruction Loss', linewidth=2, color='blue')
+        if 'val_recon_loss' in history:
+            ax_loss.plot(history['val_recon_loss'], label='Validation Reconstruction Loss', linewidth=2, color='orange')
+        if 'train_total_loss' in history:
+            ax_loss.plot(history['train_total_loss'], label='Train Total Loss', linewidth=2, linestyle='--', color='darkblue')
+        if 'val_total_loss' in history:
+            ax_loss.plot(history['val_total_loss'], label='Val Total Loss', linewidth=2, linestyle='--', color='darkorange')
+        
+        ax_loss.set_xlabel('Epoch', fontsize=13, fontweight='bold')
+        ax_loss.set_ylabel('Loss', fontsize=13, fontweight='bold')
+        ax_loss.set_title('Training and Validation Losses', fontsize=15, fontweight='bold')
+        ax_loss.legend(fontsize=11)
+        ax_loss.grid(True, alpha=0.3)
+        plt.tight_layout()
+        loss_path = os.path.join(markdown_dir, 'training_validation_losses.png')
+        plt.savefig(loss_path, dpi=200, bbox_inches='tight')
+        plt.close()
+        print(f"Separate loss plot saved to {loss_path}")
+        
+        # Separate SSIM plot
+        fig_ssim, ax_ssim = plt.subplots(figsize=(10, 6))
+        if 'train_ssim' in history:
+            ax_ssim.plot(history['train_ssim'], label='Train SSIM', linewidth=2, color='green')
+        if 'val_ssim' in history:
+            ax_ssim.plot(history['val_ssim'], label='Validation SSIM', linewidth=2, color='red')
+        
+        # Add target line
+        ax_ssim.axhline(y=0.6, color='darkred', linestyle='--', label='Target (SSIM = 0.6)', linewidth=2.5)
+        
+        ax_ssim.set_xlabel('Epoch', fontsize=13, fontweight='bold')
+        ax_ssim.set_ylabel('SSIM Score', fontsize=13, fontweight='bold')
+        ax_ssim.set_title('Structural Similarity Index (SSIM) Over Epochs', fontsize=15, fontweight='bold')
+        ax_ssim.legend(fontsize=11)
+        ax_ssim.grid(True, alpha=0.3)
+        ax_ssim.set_ylim([0, 1])
+        plt.tight_layout()
+        ssim_path = os.path.join(markdown_dir, 'ssim_scores_over_epochs.png')
+        plt.savefig(ssim_path, dpi=200, bbox_inches='tight')
+        plt.close()
+        print(f"Separate SSIM plot saved to {ssim_path}")
 
 
 def visualize_reconstructions(originals: torch.Tensor, reconstructions: torch.Tensor, 
-                              save_path: str, num_samples: int = 8):
+                              save_path: str, num_samples: int = 8, epoch: int = None):
     """Visualize original and reconstructed MRI slices side by side.
     
     Args:
@@ -156,6 +208,7 @@ def visualize_reconstructions(originals: torch.Tensor, reconstructions: torch.Te
         reconstructions: Batch of reconstructed images (B, C, H, W)
         save_path: Path to save visualization
         num_samples: Number of samples to visualize
+        epoch: Optional epoch number for title
     """
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     
@@ -167,27 +220,52 @@ def visualize_reconstructions(originals: torch.Tensor, reconstructions: torch.Te
     fig, axes = plt.subplots(2, num_samples, figsize=(2*num_samples, 4))
     
     for i in range(num_samples):
+        # Calculate SSIM first for title
+        ssim_val = calculate_ssim(originals[i, 0], reconstructions[i, 0])
+        
         # Original
         axes[0, i].imshow(originals[i, 0], cmap='gray')
         axes[0, i].axis('off')
         if i == 0:
-            axes[0, i].set_title('Original', fontsize=10, fontweight='bold')
+            axes[0, i].set_title('Original', fontsize=11, fontweight='bold')
         
-        # Reconstruction
+        # Reconstruction with SSIM as title
         axes[1, i].imshow(reconstructions[i, 0], cmap='gray')
         axes[1, i].axis('off')
-        
-        # Calculate and display SSIM for each pair
-        ssim_val = calculate_ssim(originals[i, 0], reconstructions[i, 0])
-        if i == 0:
-            axes[1, i].set_title(f'Recon\nSSIM: {ssim_val:.3f}', fontsize=10, fontweight='bold')
-        else:
-            axes[1, i].set_title(f'SSIM: {ssim_val:.3f}', fontsize=9)
+        axes[1, i].set_title(f'SSIM: {ssim_val:.3f}', fontsize=10, fontweight='bold')
+    
+    # Add overall title with epoch info
+    if epoch is not None:
+        fig.suptitle(f'Original vs Reconstructed - Epoch {epoch}', 
+                    fontsize=14, fontweight='bold', y=0.98)
+    else:
+        fig.suptitle('Original vs Reconstructed', 
+                    fontsize=14, fontweight='bold', y=0.98)
     
     plt.tight_layout()
     plt.savefig(save_path, dpi=150, bbox_inches='tight')
     plt.close()
     print(f"Reconstruction visualization saved to {save_path}")
+
+
+def save_epoch_reconstructions(originals: torch.Tensor, reconstructions: torch.Tensor,
+                               epoch: int, output_dir: str, num_samples: int = 8):
+    """Save periodic reconstruction visualizations to markdown_images folder.
+    
+    Args:
+        originals: Batch of original images (B, C, H, W)
+        reconstructions: Batch of reconstructed images (B, C, H, W)
+        epoch: Current epoch number
+        output_dir: Base output directory (typically 'outputs')
+        num_samples: Number of samples to visualize
+    """
+    # Save to markdown_images for README
+    markdown_dir = os.path.join(os.path.dirname(os.path.dirname(output_dir)), 'markdown_images')
+    os.makedirs(markdown_dir, exist_ok=True)
+    
+    save_path = os.path.join(markdown_dir, f'reconstruction_epoch_{epoch}.png')
+    visualize_reconstructions(originals, reconstructions, save_path, num_samples, epoch)
+
 
 
 
@@ -225,3 +303,19 @@ def print_model_summary(model: torch.nn.Module):
     print(f"Trainable parameters: {trainable_params:,}")
     print("="*70 + "\n")
 
+
+if __name__ == "__main__":
+    # Test utility functions
+    print("Testing utility functions...")
+    
+    # Test SSIM calculation
+    img1 = np.random.rand(256, 256)
+    img2 = img1 + np.random.randn(256, 256) * 0.1
+    ssim_val = calculate_ssim(img1, img2)
+    print(f"SSIM between similar images: {ssim_val:.3f}")
+    
+    # Test device detection
+    device = get_device()
+    print(f"Using device: {device}")
+    
+    print("\nUtility functions test passed!")

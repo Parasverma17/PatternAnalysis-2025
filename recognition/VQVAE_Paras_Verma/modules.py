@@ -285,3 +285,21 @@ class VQVAE(nn.Module):
     def decode(self, z_q: torch.Tensor) -> torch.Tensor:
         """Decode quantized latents to images."""
         return self.decoder(z_q)
+
+
+if __name__ == "__main__":
+    # Sanity test
+    print("Testing VQ-VAE architecture...")
+    model = VQVAE(
+        in_channels=1, hidden_dims=[32, 64, 128], embedding_dim=64, num_embeddings=512
+    )
+
+    # Test with typical MRI slice size
+    x = torch.randn(2, 1, 256, 256)
+    recon, vq_loss, perplexity = model(x)
+
+    print(f"Input shape: {x.shape}")
+    print(f"Reconstruction shape: {recon.shape}")
+    print(f"VQ Loss: {vq_loss.item():.4f}")
+    print(f"Perplexity: {perplexity.item():.2f}")
+    print("\nVQ-VAE architecture test passed!")

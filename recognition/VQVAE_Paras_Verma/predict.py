@@ -10,6 +10,7 @@ Loads a trained VQ-VAE checkpoint and:
 """
 
 import argparse
+import os
 from pathlib import Path
 import json
 
@@ -126,7 +127,7 @@ def evaluate_model(model, loader, device, num_visualize=16):
     return metrics, sample_originals, sample_recons
 
 
-def plot_ssim_distribution(ssim_scores, save_path, target=0.6):
+def plot_ssim_distribution(ssim_scores, save_path, target=0.6, save_to_markdown=True):
     """Plot histogram of SSIM scores with statistics.
     
     Creates a histogram showing the distribution of SSIM scores across
@@ -136,6 +137,7 @@ def plot_ssim_distribution(ssim_scores, save_path, target=0.6):
         ssim_scores: List of SSIM scores
         save_path: Path to save plot
         target: Target SSIM value to highlight (default: 0.6)
+        save_to_markdown: If True, also save to markdown_images folder
     """
     plt.figure(figsize=(10, 6))
     
@@ -173,6 +175,33 @@ def plot_ssim_distribution(ssim_scores, save_path, target=0.6):
     plt.savefig(save_path, dpi=150, bbox_inches='tight')
     plt.close()
     print(f"SSIM distribution plot saved to {save_path}")
+    
+    # Also save to markdown_images for README
+    if save_to_markdown:
+        markdown_dir = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(save_path))), 
+            'markdown_images'
+        )
+        os.makedirs(markdown_dir, exist_ok=True)
+        markdown_path = os.path.join(markdown_dir, 'ssim_distribution_test_set.png')
+        plt.figure(figsize=(10, 6))
+        plt.hist(ssim_scores, bins=50, edgecolor='black', alpha=0.7, color='skyblue')
+        plt.axvline(x=target, color='r', linestyle='--', linewidth=2, 
+                    label=f'Target (SSIM={target})')
+        plt.axvline(x=mean_ssim, color='g', linestyle='--', linewidth=2,
+                    label=f'Mean (SSIM={mean_ssim:.3f})')
+        plt.xlabel('SSIM Score', fontsize=12)
+        plt.ylabel('Frequency', fontsize=12)
+        plt.title('Distribution of SSIM Scores on Test Set', 
+                 fontsize=14, fontweight='bold')
+        plt.legend(fontsize=11)
+        plt.grid(True, alpha=0.3)
+        plt.text(0.02, 0.98, textstr, transform=plt.gca().transAxes, 
+                fontsize=10, verticalalignment='top', bbox=props)
+        plt.tight_layout()
+        plt.savefig(markdown_path, dpi=200, bbox_inches='tight')
+        plt.close()
+        print(f"SSIM distribution also saved to {markdown_path}")
 
 
 def main(args):

@@ -6,11 +6,13 @@ Designed for unsupervised generative modeling - no labels required.
 
 Rangpur Path: /home/groups/comp3710/HipMRI_Study_open/keras_slices_data
 
-The dataset returns normalized grayscale MRI slices as tensors of shape (1, H, W).
+The dataset uses keras_slices_train and keras_slices_test folders.
+For validation, we split a portion from the training set.
 """
 from typing import Optional, Callable
 import os
 import glob
+import random
 
 import numpy as np
 import nibabel as nib
@@ -22,16 +24,17 @@ from PIL import Image
 class HipMRIDataset(Dataset):
     """Dataset for HipMRI 2D prostate MRI slices.
     
-    Loads NIfTI format medical images from the keras_slices_data folder.
+    Loads NIfTI format medical images from keras_slices_train and keras_slices_test.
     Performs normalization and optional augmentation for VQ-VAE training.
     
     Args:
-        data_dir: Path to keras_slices_data folder on Rangpur
+        data_dir: Path to keras_slices_data folder (parent of train/test folders)
         split: One of 'train', 'val', or 'test' for data splitting
         image_size: Target size for resizing images (default: 256x256)
         normalize: Whether to normalize images to [0, 1] range
         transform: Optional torchvision transforms
         max_samples: Limit number of samples (for quick testing)
+        val_split: Fraction of training data to use for validation (default: 0.1)
     
     Example:
         >>> dataset = HipMRIDataset(
@@ -49,7 +52,9 @@ class HipMRIDataset(Dataset):
         image_size: int = 256,
         normalize: bool = True,
         transform: Optional[Callable] = None,
-        max_samples: Optional[int] = None
+        max_samples: Optional[int] = None,
+        val_split: float = 0.1,
+        seed: int = 42
     ):
         super().__init__()
         self.data_dir = data_dir
@@ -58,28 +63,42 @@ class HipMRIDataset(Dataset):
         self.normalize = normalize
         self.transform = transform
         
-        # Discover all NIfTI files recursively
-        print(f"Loading images from {data_dir}...")
-        nii_pattern = os.path.join(data_dir, '**', '*.nii*')
-        all_files = glob.glob(nii_pattern, recursive=True)
-        all_files.sort()  # Ensure reproducibility
+        # Set random seed for reproducibility
+        random.seed(seed)
         
-        if len(all_files) == 0:
-            raise RuntimeError(f"No NIfTI files found in {data_dir}")
-        
-        print(f"Found {len(all_files)} NIfTI files")
-        
-        # Split data: 80% train, 10% val, 10% test
-        n = len(all_files)
-        train_end = int(0.8 * n)
-        val_end = int(0.9 * n)
-        
-        if split == 'train':
-            self.files = all_files[:train_end]
-        elif split == 'val':
-            self.files = all_files[train_end:val_end]
+        # Load from appropriate folders based on split
+        if split in ['train', 'val']:
+            # Load from keras_slices_train folder
+            train_folder = os.path.join(data_dir, 'keras_slices_train')
+            print(f"Loading from training folder: {train_folder}")
+            pattern = os.path.join(train_folder, '**', '*.nii*')
+            all_files = sorted(glob.glob(pattern, recursive=True))
+            
+            if len(all_files) == 0:
+                raise RuntimeError(f"No NIfTI files found in {train_folder}")
+            
+            print(f"Found {len(all_files)} training files")
+            
+            # Split into train and validation
+            n_val = int(len(all_files) * val_split)
+            random.shuffle(all_files)
+            
+            if split == 'val':
+                self.files = all_files[:n_val]
+            else:  # train
+                self.files = all_files[n_val:]
+                
         elif split == 'test':
-            self.files = all_files[val_end:]
+            # Load from keras_slices_test folder
+            test_folder = os.path.join(data_dir, 'keras_slices_test')
+            print(f"Loading from test folder: {test_folder}")
+            pattern = os.path.join(test_folder, '**', '*.nii*')
+            self.files = sorted(glob.glob(pattern, recursive=True))
+            
+            if len(self.files) == 0:
+                raise RuntimeError(f"No NIfTI files found in {test_folder}")
+            
+            print(f"Found {len(self.files)} test files")
         else:
             raise ValueError(f"Invalid split: {split}. Must be 'train', 'val', or 'test'")
         
@@ -91,7 +110,6 @@ class HipMRIDataset(Dataset):
     
     def __len__(self) -> int:
         return len(self.files)
-
 
     def __getitem__(self, idx: int) -> torch.Tensor:
         """Load and preprocess a single MRI slice.
@@ -145,83 +163,32 @@ class HipMRIDataset(Dataset):
             return torch.zeros(1, self.image_size, self.image_size)
 
 
-class HipMRIPNGDataset(Dataset):
-    """Alternative dataset loader for PNG/JPG format MRI slices.
-    
-    Use this if the keras_slices_data folder contains PNG or JPG files
-    instead of NIfTI format.
-    
-    Args:
-        data_dir: Path to folder containing PNG/JPG images
-        split: One of 'train', 'val', or 'test'
-        image_size: Target size for resizing
-        transform: Optional transforms
-    """
-    
-    def __init__(
-        self,
-        data_dir: str,
-        split: str = 'train',
-        image_size: int = 256,
-        transform: Optional[Callable] = None,
-        max_samples: Optional[int] = None
-    ):
-        super().__init__()
-        self.data_dir = data_dir
-        self.split = split
-        self.image_size = image_size
-        self.transform = transform
+if __name__ == "__main__":
+    # Test dataset loading
+    print("Testing HipMRI dataset loader...")
+
+    # Test with Rangpur path
+    data_dir = "/home/groups/comp3710/HipMRI_Study_open/keras_slices_data"
+
+    try:
+        print("\n=== Testing Train Split ===")
+        train_dataset = HipMRIDataset(data_dir, split="train", max_samples=5)
+        print(f"Train dataset size: {len(train_dataset)}")
+        if len(train_dataset) > 0:
+            sample = train_dataset[0]
+            print(f"Sample shape: {sample.shape}")
+            print(f"Sample range: [{sample.min():.3f}, {sample.max():.3f}]")
         
-        # Find PNG and JPG files
-        patterns = ['*.png', '*.jpg', '*.jpeg', '*.PNG', '*.JPG', '*.JPEG']
-        all_files = []
-        for pattern in patterns:
-            all_files.extend(glob.glob(os.path.join(data_dir, '**', pattern), recursive=True))
+        print("\n=== Testing Val Split ===")
+        val_dataset = HipMRIDataset(data_dir, split="val", max_samples=5)
+        print(f"Val dataset size: {len(val_dataset)}")
         
-        all_files.sort()
+        print("\n=== Testing Test Split ===")
+        test_dataset = HipMRIDataset(data_dir, split="test", max_samples=5)
+        print(f"Test dataset size: {len(test_dataset)}")
         
-        if len(all_files) == 0:
-            raise RuntimeError(f"No image files found in {data_dir}")
-        
-        print(f"Found {len(all_files)} image files")
-        
-        # Split data
-        n = len(all_files)
-        train_end = int(0.8 * n)
-        val_end = int(0.9 * n)
-        
-        if split == 'train':
-            self.files = all_files[:train_end]
-        elif split == 'val':
-            self.files = all_files[train_end:val_end]
-        else:
-            self.files = all_files[val_end:]
-        
-        if max_samples:
-            self.files = self.files[:max_samples]
-        
-        print(f"{split} split: {len(self.files)} samples")
-    
-    def __len__(self) -> int:
-        return len(self.files)
-    
-    def __getitem__(self, idx: int) -> torch.Tensor:
-        filepath = self.files[idx]
-        
-        try:
-            # Load image
-            img = Image.open(filepath).convert('L')  # Convert to grayscale
-            img = img.resize((self.image_size, self.image_size), Image.BILINEAR)
-            
-            # Convert to tensor and normalize to [0, 1]
-            img_array = np.array(img).astype(np.float32) / 255.0
-            tensor = torch.from_numpy(img_array).unsqueeze(0)
-            
-            if self.transform:
-                tensor = self.transform(tensor)
-            
-            return tensor
-            
-        except Exception as e:
-            print(f"Error loading {filepath}: {e}")
-            return torch.zeros(1, self.image_size, self.image_size)
+        print("\n✓ Dataset test passed!")
+
+    except Exception as e:
+        print(f"\n✗ Dataset test failed (expected if not on Rangpur): {e}")
+        print("This is normal if running locally without access to Rangpur data.")

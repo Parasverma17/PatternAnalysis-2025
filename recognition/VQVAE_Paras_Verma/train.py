@@ -23,7 +23,8 @@ from modules import VQVAE
 from utils import (
     get_device, save_checkpoint, load_checkpoint,
     calculate_batch_ssim, plot_training_history,
-    visualize_reconstructions, print_model_summary
+    visualize_reconstructions, print_model_summary,
+    save_epoch_reconstructions
 )
 
 
@@ -331,6 +332,16 @@ def main(args):
                 val_metrics['sample_originals'],
                 val_metrics['sample_recons'],
                 str(viz_path),
+                num_samples=8,
+                epoch=epoch
+            )
+            
+            # Also save to markdown_images for README
+            save_epoch_reconstructions(
+                val_metrics['sample_originals'],
+                val_metrics['sample_recons'],
+                epoch=epoch,
+                output_dir=str(out_dir),
                 num_samples=8
             )
         
@@ -351,6 +362,15 @@ def main(args):
     
     # Final visualization and plot
     plot_training_history(history, str(out_dir / 'final_training_history.png'))
+    
+    # Save final reconstruction to markdown_images
+    save_epoch_reconstructions(
+        val_metrics['sample_originals'],
+        val_metrics['sample_recons'],
+        epoch=args.epochs,
+        output_dir=str(out_dir),
+        num_samples=8
+    )
     
     print(f"\n{'='*70}")
     print("TRAINING COMPLETE")
