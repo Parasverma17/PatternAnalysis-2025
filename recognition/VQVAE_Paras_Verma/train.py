@@ -95,3 +95,67 @@ def train_epoch(model, loader, optimizer, device, epoch):
         'vq_loss': total_vq_loss / num_batches,
         'ssim': total_ssim / num_batches
     }
+
+
+def validate(model, loader, device):
+    """Validate the model on validation set.
+    
+    Evaluates reconstruction quality without updating model parameters.
+    Collects sample images for visualization.
+    
+    Args:
+        model: VQ-VAE model
+        loader: Validation data loader
+        device: torch device
+    
+    Returns:
+        Dictionary with validation metrics and sample images
+    """
+    model.eval()
+    
+    total_loss = 0.0
+    total_recon_loss = 0.0
+    total_vq_loss = 0.0
+    total_ssim = 0.0
+    num_batches = 0
+    
+    # Store some samples for visualization
+    sample_originals = None
+    sample_recons = None
+    
+    with torch.no_grad():
+        for batch_idx, images in enumerate(loader):
+            images = images.to(device)
+            
+            # Forward pass
+            recon, vq_loss, perplexity = model(images)
+            
+            # Calculate losses
+            recon_loss = nn.functional.mse_loss(recon, images)
+            loss = recon_loss + vq_loss
+            
+            # Calculate SSIM
+            ssim = calculate_batch_ssim(images, recon)
+            
+            # Accumulate metrics
+            total_loss += loss.item()
+            total_recon_loss += recon_loss.item()
+            total_vq_loss += vq_loss.item()
+            total_ssim += ssim
+            num_batches += 1
+            
+            # Save first batch for visualization
+            if batch_idx == 0:
+                sample_originals = images
+                sample_recons = recon
+    
+    metrics = {
+        'total_loss': total_loss / num_batches,
+        'recon_loss': total_recon_loss / num_batches,
+        'vq_loss': total_vq_loss / num_batches,
+        'ssim': total_ssim / num_batches,
+        'sample_originals': sample_originals,
+        'sample_recons': sample_recons
+    }
+    
+    return metrics
