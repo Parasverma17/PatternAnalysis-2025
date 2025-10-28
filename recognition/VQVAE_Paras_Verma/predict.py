@@ -227,3 +227,66 @@ def main(args):
     best_ssim = ckpt.get('best_ssim', 'unknown')
     print(f"Loaded checkpoint from epoch {epoch}, best SSIM: {best_ssim}\n")
 
+
+    # Evaluate
+    print(f"{'='*70}")
+    print("RUNNING EVALUATION")
+    print(f"{'='*70}")
+    
+    metrics, sample_originals, sample_recons = evaluate_model(
+        model, test_loader, device, num_visualize=args.num_visualize
+    )
+    
+    # Print results
+    print(f"\n{'='*70}")
+    print("EVALUATION RESULTS")
+    print(f"{'='*70}")
+    print(f"Number of samples: {metrics['num_samples']}")
+    print(f"Mean SSIM: {metrics['mean_ssim']:.4f} ± {metrics['std_ssim']:.4f}")
+    print(f"Min SSIM: {metrics['min_ssim']:.4f}")
+    print(f"Max SSIM: {metrics['max_ssim']:.4f}")
+    print(f"Mean Reconstruction Loss: {metrics['mean_recon_loss']:.6f}")
+    print(f"\nSamples above target (SSIM > {metrics['target_ssim']}): "
+          f"{metrics['num_above_target']} ({metrics['pct_above_target']:.1f}%)")
+    
+    # Check if target met
+    if metrics['mean_ssim'] >= metrics['target_ssim']:
+        print(f"\n✓ SUCCESS: Mean SSIM {metrics['mean_ssim']:.3f} "
+              f"exceeds target {metrics['target_ssim']}!")
+    else:
+        print(f"\n✗ Target not met: Mean SSIM {metrics['mean_ssim']:.3f} "
+              f"below target {metrics['target_ssim']}")
+    
+    print(f"{'='*70}\n")
+    
+    # Save metrics
+    metrics_path = output_dir / 'evaluation_metrics.json'
+    save_metrics(metrics, str(metrics_path))
+    
+    # Visualize reconstructions
+    if sample_originals is not None:
+        vis_path = output_dir / 'test_reconstructions.png'
+        visualize_reconstructions(
+            sample_originals,
+            sample_recons,
+            str(vis_path),
+            num_samples=min(args.num_visualize, 16)
+        )
+    
+    # Plot SSIM distribution
+    dist_path = output_dir / 'ssim_distribution.png'
+    plot_ssim_distribution(
+        metrics['all_ssim_scores'],
+        str(dist_path),
+        target=metrics['target_ssim']
+    )
+    
+    print(f"\n{'='*70}")
+    print("EVALUATION COMPLETE")
+    print(f"{'='*70}")
+    print(f"Results saved to: {output_dir}")
+    print(f"  - Metrics: {metrics_path}")
+    print(f"  - Reconstructions: {output_dir / 'test_reconstructions.png'}")
+    print(f"  - SSIM distribution: {dist_path}")
+    print(f"{'='*70}\n")
+
