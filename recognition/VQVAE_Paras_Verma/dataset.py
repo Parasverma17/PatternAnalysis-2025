@@ -211,7 +211,7 @@ if __name__ == "__main__":
             print(f"Sample range: [{sample.min():.3f}, {sample.max():.3f}]")
         
         print("\n=== Testing Val Split ===")
-        val_dataset = HipMRIDataset(data_dir, split="val", max_samples=5)
+        val_dataset = HipMRIDataset(data_dir, split="val", max_samples=5, use_provided_val=True)
         print(f"Val dataset size: {len(val_dataset)}")
         
         print("\n=== Testing Test Split ===")

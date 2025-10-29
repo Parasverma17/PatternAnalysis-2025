@@ -39,7 +39,7 @@ def load_checkpoint(path: str, model: Optional[torch.nn.Module] = None,
         Dictionary containing checkpoint state
     """
     device = get_device()
-    ckpt = torch.load(path, map_location=device)
+    ckpt = torch.load(path, map_location=device, weights_only=False)
     
     if model is not None and 'model_state' in ckpt:
         model.load_state_dict(ckpt['model_state'])
