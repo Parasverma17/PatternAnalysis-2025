@@ -399,7 +399,7 @@ After training, we evaluated the model on a completely unseen test set of 540 MR
 
 ### SSIM Distribution on Test Set
 
-![SSIM Distribution](outputs/predictions/ssim_distribution.png)
+![SSIM Distribution](Outputs/predictions/ssim_distribution.png)
 
 **Statistical Summary**:
 
@@ -418,7 +418,7 @@ After training, we evaluated the model on a completely unseen test set of 540 MR
 
 ### Sample Test Reconstructions
 
-![Test Set Reconstructions](outputs/predictions/test_reconstructions.png)
+![Test Set Reconstructions](Outputs/predictions/test_reconstructions.png)
 
 **Visual Analysis**:
 Each row shows:
