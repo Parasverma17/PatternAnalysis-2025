@@ -32,6 +32,9 @@ The **Vector Quantized Variational Autoencoder (VQ-VAE)** is an advanced unsuper
 
 Our VQ-VAE implementation consists of three main components:
 
+![VQ-VAE Architecture](markdown_images/VQVAE_architecture.jpg)
+_Figure: VQ-VAE architecture showing the encoder, vector quantization layer with codebook, and decoder. The encoder compresses the input image into latent codes, which are then quantized to the nearest codebook embeddings before being decoded back to reconstruct the original image._
+
 #### 1. **Encoder Network**
 
 The encoder takes a 256×256 grayscale MRI image and progressively downsamples it through convolutional layers to create a compact latent representation:
@@ -77,6 +80,9 @@ The decoder reconstructs the original image from the quantized latent representa
    - **Reconstruction Loss**: MSE between original and reconstructed image (measures quality)
    - **Codebook Loss**: Brings codebook entries closer to encoder outputs (updates codebook)
    - **Commitment Loss**: Encourages encoder to commit to codebook entries (prevents drift)
+
+![VQ-VAE Loss Function](markdown_images/VQVAE_loss_function.png)
+_Figure: VQ-VAE loss function showing the three components: reconstruction loss (measures image quality), VQ loss (updates codebook), and commitment loss (prevents encoder drift). The parameter β controls the strength of the commitment term._
 
 5. **Backpropagation**: Gradients flow through the straight-through estimator, updating both encoder and decoder while the codebook learns from encoder outputs
 
@@ -188,6 +194,70 @@ source vqvae_env/bin/activate
 
 # Then Install dependencies using packages installations commands mentioned above
 ```
+
+---
+
+## Reproducibility
+
+To ensure reproducible results when running this codebase:
+
+### Fixed Random Seeds
+
+The implementation uses fixed random seeds for reproducibility:
+
+- **PyTorch Seed**: Set to 42 in training scripts
+- **NumPy Seed**: Set to 42 for data splitting
+- **Data Split**: Train/validation split uses `random_state=42` for consistent splits across runs
+
+### Steps to Reproduce Results
+
+1. **Clone the Repository and Navigate to Project Directory**:
+
+   ```bash
+   cd PatternAnalysis-2025/recognition/VQVAE_Paras_Verma
+   ```
+
+2. **Set Up Environment** (see Installation section above)
+
+3. **Verify Dataset Path**: Ensure HipMRI dataset is accessible at:
+
+   ```
+   /home/groups/comp3710/HipMRI_Study_open/keras_slices_data/
+   ├── keras_slices_train/  (11,460 images)
+   └── keras_slices_test/   (540 images)
+   ```
+
+4. **Train Model with Fixed Hyperparameters**:
+
+   ```bash
+   python train.py \
+       --data_dir /home/groups/comp3710/HipMRI_Study_open/keras_slices_data \
+       --epochs 50 \
+       --batch_size 16 \
+       --lr 0.0002 \
+       --image_size 256 \
+       --output_dir outputs
+   ```
+
+5. **Evaluate on Test Set**:
+   ```bash
+   python predict.py \
+       --data_dir /home/groups/comp3710/HipMRI_Study_open/keras_slices_data \
+       --checkpoint outputs/checkpoints/best_model.pt \
+       --output_dir outputs/predictions \
+       --batch_size 16
+   ```
+
+### Expected Results
+
+Running the above commands should produce:
+
+- **Mean Test SSIM**: ~0.879 (±0.02)
+- **All Test Samples**: Above 0.6 SSIM threshold
+- **Training Time**: Approximately 16 hours on CPU (varies by hardware)
+- **Model Size**: 2.36M parameters (~9MB checkpoint file)
+
+**Note**: Minor variations may occur due to hardware differences and PyTorch version, but results should remain within the reported range.
 
 ---
 

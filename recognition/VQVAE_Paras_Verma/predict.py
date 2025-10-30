@@ -280,10 +280,10 @@ def main(args):
     
     # Check if target met
     if metrics['mean_ssim'] >= metrics['target_ssim']:
-        print(f"\n✓ SUCCESS: Mean SSIM {metrics['mean_ssim']:.3f} "
+        print(f"\n SUCCESS: Mean SSIM {metrics['mean_ssim']:.3f} "
               f"exceeds target {metrics['target_ssim']}!")
     else:
-        print(f"\n✗ Target not met: Mean SSIM {metrics['mean_ssim']:.3f} "
+        print(f"\n Target not met: Mean SSIM {metrics['mean_ssim']:.3f} "
               f"below target {metrics['target_ssim']}")
     
     print(f"{'='*70}\n")
