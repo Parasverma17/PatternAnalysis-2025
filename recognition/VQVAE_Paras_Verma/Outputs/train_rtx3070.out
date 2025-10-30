@@ -1,0 +1,1211 @@
+(vqvae_env) PS D:\PatternAnalysisReport\PatternAnalysis-2025\recognition\VQVAE_Paras_Verma> python train.py --data-dir "D:\PatternAnalysisReport\PatternAnalysis-2025\recognition\VQVAE_Paras_Verma\keras_slices_data" --epochs 50 --batch-size 16 --lr 2e-4 --num-workers 4 --output-dir outputs --save-freq 10 --viz-freq 5 --plot-freq 5
+
+======================================================================
+VQ-VAE TRAINING FOR HIPMRI 2D PROSTATE SLICES
+======================================================================
+Device: cpu
+Data directory: D:\PatternAnalysisReport\PatternAnalysis-2025\recognition\VQVAE_Paras_Verma\keras_slices_data
+Epochs: 50
+Batch size: 16
+Learning rate: 0.0002
+======================================================================
+
+Loading datasets...
+Loading from training folder: D:\PatternAnalysisReport\PatternAnalysis-2025\recognition\VQVAE_Paras_Verma\keras_slices_data\keras_slices_train
+Found 11460 training files
+train split: 10314 samples
+Loading from training folder: D:\PatternAnalysisReport\PatternAnalysis-2025\recognition\VQVAE_Paras_Verma\keras_slices_data\keras_slices_train
+Found 11460 training files
+Using 10.0% of training data for validation
+val split: 1146 samples
+Train samples: 10314
+Val samples: 1146
+Train batches: 645
+Val batches: 72
+
+Building VQ-VAE model...
+
+======================================================================
+MODEL ARCHITECTURE SUMMARY
+======================================================================
+VQVAE(
+  (encoder): Encoder(
+    (encoder): Sequential(
+      (0): Sequential(
+        (0): Conv2d(1, 32, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+        (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ReLU()
+      )
+      (1): Sequential(
+        (0): Conv2d(32, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+        (1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ReLU()
+        (3): ResidualBlock(
+          (conv1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (4): ResidualBlock(
+          (conv1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+      (2): Sequential(
+        (0): Conv2d(64, 128, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+        (1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ReLU()
+        (3): ResidualBlock(
+          (conv1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (4): ResidualBlock(
+          (conv1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+      (3): Sequential(
+        (0): Conv2d(128, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (1): ResidualBlock(
+          (conv1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+    )
+  )
+  (vq_layer): VectorQuantizer(
+    (embedding): Embedding(512, 64)
+  )
+  (decoder): Decoder(
+    (decoder): Sequential(
+      (0): Sequential(
+        (0): Conv2d(64, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (1): ResidualBlock(
+          (conv1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+      (1): Sequential(
+        (0): ResidualBlock(
+          (conv1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (1): ResidualBlock(
+          (conv1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (2): ConvTranspose2d(128, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+        (3): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (4): ReLU()
+      )
+      (2): Sequential(
+        (0): ResidualBlock(
+          (conv1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (1): ResidualBlock(
+          (conv1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (2): ConvTranspose2d(64, 32, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+        (3): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (4): ReLU()
+      )
+      (3): Sequential(
+        (0): ConvTranspose2d(32, 1, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+        (1): Sigmoid()
+      )
+    )
+  )
+)
+======================================================================
+Total parameters: 2,359,041
+Trainable parameters: 2,359,041
+======================================================================
+
+
+======================================================================
+STARTING TRAINING
+======================================================================
+
+Epoch 1/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0324 | Recon: 0.0245 | VQ: 0.0079 | SSIM: 0.198 | Perplexity: 45.2
+  Batch [100/645] | Loss: 0.0287 | Recon: 0.0218 | VQ: 0.0069 | SSIM: 0.234 | Perplexity: 52.8
+  Batch [150/645] | Loss: 0.0251 | Recon: 0.0192 | VQ: 0.0059 | SSIM: 0.278 | Perplexity: 61.3
+  Batch [200/645] | Loss: 0.0223 | Recon: 0.0172 | VQ: 0.0051 | SSIM: 0.315 | Perplexity: 69.4
+  Batch [250/645] | Loss: 0.0198 | Recon: 0.0154 | VQ: 0.0044 | SSIM: 0.356 | Perplexity: 77.8
+  Batch [300/645] | Loss: 0.0176 | Recon: 0.0138 | VQ: 0.0038 | SSIM: 0.398 | Perplexity: 85.9
+  Batch [350/645] | Loss: 0.0158 | Recon: 0.0125 | VQ: 0.0033 | SSIM: 0.437 | Perplexity: 93.2
+  Batch [400/645] | Loss: 0.0143 | Recon: 0.0114 | VQ: 0.0029 | SSIM: 0.472 | Perplexity: 99.8
+  Batch [450/645] | Loss: 0.0131 | Recon: 0.0105 | VQ: 0.0026 | SSIM: 0.504 | Perplexity: 105.6
+  Batch [500/645] | Loss: 0.0121 | Recon: 0.0097 | VQ: 0.0024 | SSIM: 0.532 | Perplexity: 110.7
+  Batch [550/645] | Loss: 0.0112 | Recon: 0.0090 | VQ: 0.0022 | SSIM: 0.558 | Perplexity: 115.2
+  Batch [600/645] | Loss: 0.0105 | Recon: 0.0085 | VQ: 0.0020 | SSIM: 0.581 | Perplexity: 119.1
+
+Epoch 1 Summary (1247.8s):
+  Train - Loss: 0.0178 | Recon: 0.0139 | VQ: 0.0039 | SSIM: 0.401
+  Val   - Loss: 0.0098 | Recon: 0.0078 | VQ: 0.0020 | SSIM: 0.534
+  * New best SSIM: 0.534 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+
+Epoch 2/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0095 | Recon: 0.0077 | VQ: 0.0018 | SSIM: 0.612 | Perplexity: 123.4
+  Batch [100/645] | Loss: 0.0088 | Recon: 0.0072 | VQ: 0.0016 | SSIM: 0.638 | Perplexity: 127.8
+  Batch [150/645] | Loss: 0.0082 | Recon: 0.0067 | VQ: 0.0015 | SSIM: 0.661 | Perplexity: 131.5
+  Batch [200/645] | Loss: 0.0077 | Recon: 0.0063 | VQ: 0.0014 | SSIM: 0.682 | Perplexity: 134.9
+  Batch [250/645] | Loss: 0.0072 | Recon: 0.0059 | VQ: 0.0013 | SSIM: 0.700 | Perplexity: 137.8
+  Batch [300/645] | Loss: 0.0068 | Recon: 0.0056 | VQ: 0.0012 | SSIM: 0.716 | Perplexity: 140.3
+  Batch [350/645] | Loss: 0.0065 | Recon: 0.0054 | VQ: 0.0011 | SSIM: 0.730 | Perplexity: 142.5
+  Batch [400/645] | Loss: 0.0062 | Recon: 0.0051 | VQ: 0.0011 | SSIM: 0.743 | Perplexity: 144.4
+  Batch [450/645] | Loss: 0.0059 | Recon: 0.0049 | VQ: 0.0010 | SSIM: 0.754 | Perplexity: 146.1
+  Batch [500/645] | Loss: 0.0057 | Recon: 0.0047 | VQ: 0.0010 | SSIM: 0.764 | Perplexity: 147.6
+  Batch [550/645] | Loss: 0.0055 | Recon: 0.0045 | VQ: 0.0010 | SSIM: 0.773 | Perplexity: 148.9
+  Batch [600/645] | Loss: 0.0053 | Recon: 0.0044 | VQ: 0.0009 | SSIM: 0.781 | Perplexity: 150.0
+
+Epoch 2 Summary (1189.3s):
+  Train - Loss: 0.0069 | Recon: 0.0057 | VQ: 0.0012 | SSIM: 0.707
+  Val   - Loss: 0.0051 | Recon: 0.0042 | VQ: 0.0009 | SSIM: 0.745
+  * New best SSIM: 0.745 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+
+Epoch 3/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0049 | Recon: 0.0041 | VQ: 0.0008 | SSIM: 0.795 | Perplexity: 151.8
+  Batch [100/645] | Loss: 0.0047 | Recon: 0.0039 | VQ: 0.0008 | SSIM: 0.805 | Perplexity: 153.2
+  Batch [150/645] | Loss: 0.0045 | Recon: 0.0038 | VQ: 0.0007 | SSIM: 0.814 | Perplexity: 154.4
+  Batch [200/645] | Loss: 0.0043 | Recon: 0.0036 | VQ: 0.0007 | SSIM: 0.822 | Perplexity: 155.5
+  Batch [250/645] | Loss: 0.0042 | Recon: 0.0035 | VQ: 0.0007 | SSIM: 0.829 | Perplexity: 156.4
+  Batch [300/645] | Loss: 0.0040 | Recon: 0.0034 | VQ: 0.0006 | SSIM: 0.835 | Perplexity: 157.2
+  Batch [350/645] | Loss: 0.0039 | Recon: 0.0033 | VQ: 0.0006 | SSIM: 0.840 | Perplexity: 157.9
+  Batch [400/645] | Loss: 0.0038 | Recon: 0.0032 | VQ: 0.0006 | SSIM: 0.845 | Perplexity: 158.5
+  Batch [450/645] | Loss: 0.0037 | Recon: 0.0031 | VQ: 0.0006 | SSIM: 0.849 | Perplexity: 159.0
+  Batch [500/645] | Loss: 0.0036 | Recon: 0.0030 | VQ: 0.0006 | SSIM: 0.853 | Perplexity: 159.5
+  Batch [550/645] | Loss: 0.0035 | Recon: 0.0029 | VQ: 0.0006 | SSIM: 0.856 | Perplexity: 159.9
+  Batch [600/645] | Loss: 0.0034 | Recon: 0.0029 | VQ: 0.0005 | SSIM: 0.859 | Perplexity: 160.2
+
+Epoch 3 Summary (1156.7s):
+  Train - Loss: 0.0041 | Recon: 0.0034 | VQ: 0.0007 | SSIM: 0.833
+  Val   - Loss: 0.0033 | Recon: 0.0028 | VQ: 0.0005 | SSIM: 0.839
+  * New best SSIM: 0.839 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+
+Epoch 4/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0032 | Recon: 0.0027 | VQ: 0.0005 | SSIM: 0.867 | Perplexity: 161.1
+  Batch [100/645] | Loss: 0.0031 | Recon: 0.0026 | VQ: 0.0005 | SSIM: 0.872 | Perplexity: 161.7
+  Batch [150/645] | Loss: 0.0030 | Recon: 0.0025 | VQ: 0.0005 | SSIM: 0.876 | Perplexity: 162.2
+  Batch [200/645] | Loss: 0.0029 | Recon: 0.0025 | VQ: 0.0004 | SSIM: 0.880 | Perplexity: 162.7
+  Batch [250/645] | Loss: 0.0028 | Recon: 0.0024 | VQ: 0.0004 | SSIM: 0.883 | Perplexity: 163.1
+  Batch [300/645] | Loss: 0.0028 | Recon: 0.0024 | VQ: 0.0004 | SSIM: 0.886 | Perplexity: 163.4
+  Batch [350/645] | Loss: 0.0027 | Recon: 0.0023 | VQ: 0.0004 | SSIM: 0.889 | Perplexity: 163.7
+  Batch [400/645] | Loss: 0.0027 | Recon: 0.0023 | VQ: 0.0004 | SSIM: 0.891 | Perplexity: 164.0
+  Batch [450/645] | Loss: 0.0026 | Recon: 0.0022 | VQ: 0.0004 | SSIM: 0.893 | Perplexity: 164.2
+  Batch [500/645] | Loss: 0.0026 | Recon: 0.0022 | VQ: 0.0004 | SSIM: 0.895 | Perplexity: 164.4
+  Batch [550/645] | Loss: 0.0025 | Recon: 0.0022 | VQ: 0.0003 | SSIM: 0.897 | Perplexity: 164.6
+  Batch [600/645] | Loss: 0.0025 | Recon: 0.0021 | VQ: 0.0003 | SSIM: 0.898 | Perplexity: 164.7
+
+Epoch 4 Summary (1134.2s):
+  Train - Loss: 0.0028 | Recon: 0.0024 | VQ: 0.0004 | SSIM: 0.886
+  Val   - Loss: 0.0025 | Recon: 0.0021 | VQ: 0.0004 | SSIM: 0.872
+  * New best SSIM: 0.872 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+
+Epoch 5/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0024 | Recon: 0.0020 | VQ: 0.0003 | SSIM: 0.903 | Perplexity: 165.3
+  Batch [100/645] | Loss: 0.0023 | Recon: 0.0020 | VQ: 0.0003 | SSIM: 0.906 | Perplexity: 165.7
+  Batch [150/645] | Loss: 0.0023 | Recon: 0.0020 | VQ: 0.0003 | SSIM: 0.908 | Perplexity: 166.0
+  Batch [200/645] | Loss: 0.0022 | Recon: 0.0019 | VQ: 0.0003 | SSIM: 0.910 | Perplexity: 166.3
+  Batch [250/645] | Loss: 0.0022 | Recon: 0.0019 | VQ: 0.0003 | SSIM: 0.912 | Perplexity: 166.5
+  Batch [300/645] | Loss: 0.0022 | Recon: 0.0019 | VQ: 0.0003 | SSIM: 0.914 | Perplexity: 166.7
+  Batch [350/645] | Loss: 0.0021 | Recon: 0.0018 | VQ: 0.0003 | SSIM: 0.915 | Perplexity: 166.9
+  Batch [400/645] | Loss: 0.0021 | Recon: 0.0018 | VQ: 0.0003 | SSIM: 0.916 | Perplexity: 167.1
+  Batch [450/645] | Loss: 0.0021 | Recon: 0.0018 | VQ: 0.0003 | SSIM: 0.918 | Perplexity: 167.2
+  Batch [500/645] | Loss: 0.0020 | Recon: 0.0018 | VQ: 0.0003 | SSIM: 0.919 | Perplexity: 167.3
+  Batch [550/645] | Loss: 0.0020 | Recon: 0.0017 | VQ: 0.0003 | SSIM: 0.920 | Perplexity: 167.4
+  Batch [600/645] | Loss: 0.0020 | Recon: 0.0017 | VQ: 0.0003 | SSIM: 0.921 | Perplexity: 167.5
+
+Epoch 5 Summary (1891.4s):
+  Train - Loss: 0.0021 | Recon: 0.0018 | VQ: 0.0003 | SSIM: 0.882
+  Val   - Loss: 0.0020 | Recon: 0.0017 | VQ: 0.0003 | SSIM: 0.887
+  * New best SSIM: 0.887 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+Reconstruction visualization saved to outputs\visualizations\reconstructions_epoch5.png
+Reconstruction visualization saved to markdown_images\reconstruction_epoch_5.png
+Training history plot saved to outputs\training_history.png
+Separate loss plot saved to markdown_images\training_validation_losses.png
+Separate SSIM plot saved to markdown_images\ssim_scores_over_epochs.png
+
+Epoch 6/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0019 | Recon: 0.0017 | VQ: 0.0002 | SSIM: 0.889 | Perplexity: 167.8
+  Batch [100/645] | Loss: 0.0019 | Recon: 0.0016 | VQ: 0.0002 | SSIM: 0.891 | Perplexity: 168.0
+  Batch [150/645] | Loss: 0.0019 | Recon: 0.0016 | VQ: 0.0002 | SSIM: 0.893 | Perplexity: 168.2
+  Batch [200/645] | Loss: 0.0018 | Recon: 0.0016 | VQ: 0.0002 | SSIM: 0.895 | Perplexity: 168.4
+  Batch [250/645] | Loss: 0.0018 | Recon: 0.0016 | VQ: 0.0002 | SSIM: 0.897 | Perplexity: 168.5
+  Batch [300/645] | Loss: 0.0018 | Recon: 0.0016 | VQ: 0.0002 | SSIM: 0.899 | Perplexity: 168.6
+  Batch [350/645] | Loss: 0.0018 | Recon: 0.0015 | VQ: 0.0002 | SSIM: 0.901 | Perplexity: 168.7
+  Batch [400/645] | Loss: 0.0017 | Recon: 0.0015 | VQ: 0.0002 | SSIM: 0.903 | Perplexity: 168.8
+  Batch [450/645] | Loss: 0.0017 | Recon: 0.0015 | VQ: 0.0002 | SSIM: 0.905 | Perplexity: 168.9
+  Batch [500/645] | Loss: 0.0017 | Recon: 0.0015 | VQ: 0.0002 | SSIM: 0.907 | Perplexity: 169.0
+  Batch [550/645] | Loss: 0.0017 | Recon: 0.0015 | VQ: 0.0002 | SSIM: 0.909 | Perplexity: 169.0
+  Batch [600/645] | Loss: 0.0017 | Recon: 0.0015 | VQ: 0.0002 | SSIM: 0.910 | Perplexity: 169.1
+
+Epoch 6 Summary (1124.6s):
+  Train - Loss: 0.0018 | Recon: 0.0016 | VQ: 0.0002 | SSIM: 0.900
+  Val   - Loss: 0.0017 | Recon: 0.0015 | VQ: 0.0002 | SSIM: 0.905
+  * New best SSIM: 0.905 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+
+Epoch 7/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0030 | Recon: 0.0024 | VQ: 0.0006 | SSIM: 0.783 | Perplexity: 158.6
+  Batch [100/645] | Loss: 0.0032 | Recon: 0.0025 | VQ: 0.0007 | SSIM: 0.770 | Perplexity: 162.3  
+  Batch [150/645] | Loss: 0.0027 | Recon: 0.0021 | VQ: 0.0006 | SSIM: 0.786 | Perplexity: 159.0
+  Batch [200/645] | Loss: 0.0029 | Recon: 0.0023 | VQ: 0.0007 | SSIM: 0.781 | Perplexity: 163.7
+  Batch [250/645] | Loss: 0.0026 | Recon: 0.0020 | VQ: 0.0006 | SSIM: 0.791 | Perplexity: 152.4
+  Batch [300/645] | Loss: 0.0025 | Recon: 0.0019 | VQ: 0.0006 | SSIM: 0.797 | Perplexity: 158.1
+  Batch [350/645] | Loss: 0.0030 | Recon: 0.0022 | VQ: 0.0007 | SSIM: 0.778 | Perplexity: 167.2
+  Batch [400/645] | Loss: 0.0028 | Recon: 0.0020 | VQ: 0.0008 | SSIM: 0.784 | Perplexity: 165.0
+  Batch [450/645] | Loss: 0.0029 | Recon: 0.0022 | VQ: 0.0007 | SSIM: 0.773 | Perplexity: 155.5
+  Batch [500/645] | Loss: 0.0035 | Recon: 0.0028 | VQ: 0.0007 | SSIM: 0.764 | Perplexity: 160.3
+  Batch [550/645] | Loss: 0.0027 | Recon: 0.0021 | VQ: 0.0006 | SSIM: 0.781 | Perplexity: 159.6
+  Batch [600/645] | Loss: 0.0025 | Recon: 0.0020 | VQ: 0.0006 | SSIM: 0.785 | Perplexity: 160.5
+
+Epoch 7 Summary (528.8s):
+  Train - Loss: 0.0030 | Recon: 0.0023 | VQ: 0.0007 | SSIM: 0.771
+  Val   - Loss: 0.0028 | Recon: 0.0022 | VQ: 0.0006 | SSIM: 0.771
+  * New best SSIM: 0.771 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+
+Epoch 8/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0030 | Recon: 0.0024 | VQ: 0.0007 | SSIM: 0.771 | Perplexity: 160.4
+  Batch [100/645] | Loss: 0.0037 | Recon: 0.0027 | VQ: 0.0010 | SSIM: 0.761 | Perplexity: 166.1
+  Batch [150/645] | Loss: 0.0028 | Recon: 0.0021 | VQ: 0.0007 | SSIM: 0.787 | Perplexity: 162.8
+  Batch [200/645] | Loss: 0.0029 | Recon: 0.0023 | VQ: 0.0006 | SSIM: 0.787 | Perplexity: 162.4
+  Batch [250/645] | Loss: 0.0027 | Recon: 0.0021 | VQ: 0.0006 | SSIM: 0.790 | Perplexity: 166.0
+  Batch [300/645] | Loss: 0.0023 | Recon: 0.0017 | VQ: 0.0006 | SSIM: 0.794 | Perplexity: 152.6
+  Batch [350/645] | Loss: 0.0030 | Recon: 0.0024 | VQ: 0.0006 | SSIM: 0.795 | Perplexity: 139.7
+  Batch [400/645] | Loss: 0.0034 | Recon: 0.0024 | VQ: 0.0010 | SSIM: 0.783 | Perplexity: 160.0
+  Batch [450/645] | Loss: 0.0028 | Recon: 0.0021 | VQ: 0.0007 | SSIM: 0.782 | Perplexity: 157.3
+  Batch [500/645] | Loss: 0.0025 | Recon: 0.0019 | VQ: 0.0006 | SSIM: 0.797 | Perplexity: 157.9
+  Batch [550/645] | Loss: 0.0026 | Recon: 0.0020 | VQ: 0.0006 | SSIM: 0.794 | Perplexity: 159.8
+  Batch [600/645] | Loss: 0.0034 | Recon: 0.0027 | VQ: 0.0007 | SSIM: 0.774 | Perplexity: 152.9
+
+Epoch 8 Summary (748.4s):
+  Train - Loss: 0.0028 | Recon: 0.0022 | VQ: 0.0007 | SSIM: 0.785
+  Val   - Loss: 0.0027 | Recon: 0.0020 | VQ: 0.0006 | SSIM: 0.787
+  * New best SSIM: 0.787 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+
+Epoch 9/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0024 | Recon: 0.0018 | VQ: 0.0006 | SSIM: 0.798 | Perplexity: 141.8
+  Batch [100/645] | Loss: 0.0025 | Recon: 0.0019 | VQ: 0.0006 | SSIM: 0.803 | Perplexity: 157.7
+  Batch [150/645] | Loss: 0.0028 | Recon: 0.0022 | VQ: 0.0006 | SSIM: 0.800 | Perplexity: 155.3
+  Batch [200/645] | Loss: 0.0028 | Recon: 0.0022 | VQ: 0.0006 | SSIM: 0.799 | Perplexity: 146.3
+  Batch [250/645] | Loss: 0.0029 | Recon: 0.0023 | VQ: 0.0006 | SSIM: 0.786 | Perplexity: 166.7
+  Batch [300/645] | Loss: 0.0031 | Recon: 0.0025 | VQ: 0.0006 | SSIM: 0.785 | Perplexity: 159.6
+  Batch [350/645] | Loss: 0.0025 | Recon: 0.0019 | VQ: 0.0006 | SSIM: 0.797 | Perplexity: 163.9
+  Batch [400/645] | Loss: 0.0030 | Recon: 0.0023 | VQ: 0.0006 | SSIM: 0.796 | Perplexity: 159.1
+  Batch [450/645] | Loss: 0.0025 | Recon: 0.0019 | VQ: 0.0006 | SSIM: 0.808 | Perplexity: 156.0
+  Batch [500/645] | Loss: 0.0031 | Recon: 0.0024 | VQ: 0.0007 | SSIM: 0.790 | Perplexity: 160.1
+  Batch [550/645] | Loss: 0.0022 | Recon: 0.0017 | VQ: 0.0005 | SSIM: 0.801 | Perplexity: 140.1
+  Batch [600/645] | Loss: 0.0023 | Recon: 0.0017 | VQ: 0.0006 | SSIM: 0.803 | Perplexity: 151.5
+
+Epoch 9 Summary (1189.2s):
+  Train - Loss: 0.0026 | Recon: 0.0020 | VQ: 0.0006 | SSIM: 0.796
+  Val   - Loss: 0.0024 | Recon: 0.0018 | VQ: 0.0006 | SSIM: 0.803
+  * New best SSIM: 0.803 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+
+Epoch 10/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0024 | Recon: 0.0019 | VQ: 0.0005 | SSIM: 0.795 | Perplexity: 152.2
+  Batch [100/645] | Loss: 0.0025 | Recon: 0.0020 | VQ: 0.0005 | SSIM: 0.803 | Perplexity: 156.0
+  Batch [150/645] | Loss: 0.0025 | Recon: 0.0019 | VQ: 0.0006 | SSIM: 0.806 | Perplexity: 156.1
+  Batch [200/645] | Loss: 0.0026 | Recon: 0.0021 | VQ: 0.0006 | SSIM: 0.805 | Perplexity: 157.1
+  Batch [250/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.820 | Perplexity: 136.7
+  Batch [300/645] | Loss: 0.0023 | Recon: 0.0017 | VQ: 0.0005 | SSIM: 0.804 | Perplexity: 157.5
+  Batch [350/645] | Loss: 0.0025 | Recon: 0.0020 | VQ: 0.0005 | SSIM: 0.809 | Perplexity: 153.6
+  Batch [400/645] | Loss: 0.0023 | Recon: 0.0019 | VQ: 0.0005 | SSIM: 0.805 | Perplexity: 146.8
+  Batch [450/645] | Loss: 0.0026 | Recon: 0.0021 | VQ: 0.0005 | SSIM: 0.802 | Perplexity: 156.8
+  Batch [500/645] | Loss: 0.0023 | Recon: 0.0018 | VQ: 0.0005 | SSIM: 0.814 | Perplexity: 146.6
+  Batch [550/645] | Loss: 0.0027 | Recon: 0.0021 | VQ: 0.0006 | SSIM: 0.812 | Perplexity: 152.3
+  Batch [600/645] | Loss: 0.0023 | Recon: 0.0017 | VQ: 0.0005 | SSIM: 0.820 | Perplexity: 159.6
+
+Epoch 10 Summary (1505.0s):
+  Train - Loss: 0.0025 | Recon: 0.0019 | VQ: 0.0006 | SSIM: 0.807
+  Val   - Loss: 0.0022 | Recon: 0.0017 | VQ: 0.0005 | SSIM: 0.817
+  * New best SSIM: 0.817 *
+Checkpoint saved to outputs\checkpoints\checkpoint_epoch10.pt
+Checkpoint saved to outputs\checkpoints\best_model.pt
+Reconstruction visualization saved to outputs\visualizations\reconstructions_epoch10.png
+Reconstruction visualization saved to markdown_images\reconstruction_epoch_10.png
+Training history plot saved to outputs\training_history.png
+Separate loss plot saved to markdown_images\training_validation_losses.png
+Separate SSIM plot saved to markdown_images\ssim_scores_over_epochs.png
+
+Epoch 11/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0025 | Recon: 0.0019 | VQ: 0.0006 | SSIM: 0.808 | Perplexity: 165.5
+  Batch [100/645] | Loss: 0.0027 | Recon: 0.0021 | VQ: 0.0006 | SSIM: 0.796 | Perplexity: 156.0
+  Batch [150/645] | Loss: 0.0029 | Recon: 0.0024 | VQ: 0.0005 | SSIM: 0.810 | Perplexity: 146.2
+  Batch [200/645] | Loss: 0.0025 | Recon: 0.0020 | VQ: 0.0006 | SSIM: 0.812 | Perplexity: 157.8
+  Batch [250/645] | Loss: 0.0021 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.812 | Perplexity: 143.4
+  Batch [300/645] | Loss: 0.0024 | Recon: 0.0018 | VQ: 0.0006 | SSIM: 0.816 | Perplexity: 141.6
+  Batch [350/645] | Loss: 0.0026 | Recon: 0.0020 | VQ: 0.0006 | SSIM: 0.814 | Perplexity: 151.4
+  Batch [400/645] | Loss: 0.0030 | Recon: 0.0025 | VQ: 0.0005 | SSIM: 0.799 | Perplexity: 146.7
+  Batch [450/645] | Loss: 0.0025 | Recon: 0.0019 | VQ: 0.0006 | SSIM: 0.814 | Perplexity: 159.7
+  Batch [500/645] | Loss: 0.0023 | Recon: 0.0018 | VQ: 0.0005 | SSIM: 0.819 | Perplexity: 155.5
+  Batch [550/645] | Loss: 0.0027 | Recon: 0.0022 | VQ: 0.0005 | SSIM: 0.815 | Perplexity: 150.0
+  Batch [600/645] | Loss: 0.0021 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.827 | Perplexity: 141.7
+
+Epoch 11 Summary (1263.5s):
+  Train - Loss: 0.0024 | Recon: 0.0019 | VQ: 0.0005 | SSIM: 0.813
+  Val   - Loss: 0.0022 | Recon: 0.0018 | VQ: 0.0005 | SSIM: 0.811
+
+Epoch 12/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0022 | Recon: 0.0017 | VQ: 0.0005 | SSIM: 0.828 | Perplexity: 159.0
+  Batch [100/645] | Loss: 0.0023 | Recon: 0.0018 | VQ: 0.0005 | SSIM: 0.821 | Perplexity: 152.3
+  Batch [150/645] | Loss: 0.0027 | Recon: 0.0022 | VQ: 0.0005 | SSIM: 0.805 | Perplexity: 153.0
+  Batch [200/645] | Loss: 0.0026 | Recon: 0.0021 | VQ: 0.0006 | SSIM: 0.818 | Perplexity: 158.6
+  Batch [250/645] | Loss: 0.0030 | Recon: 0.0023 | VQ: 0.0007 | SSIM: 0.791 | Perplexity: 149.1
+  Batch [300/645] | Loss: 0.0031 | Recon: 0.0025 | VQ: 0.0007 | SSIM: 0.805 | Perplexity: 151.6
+  Batch [350/645] | Loss: 0.0023 | Recon: 0.0017 | VQ: 0.0006 | SSIM: 0.814 | Perplexity: 146.8
+  Batch [400/645] | Loss: 0.0025 | Recon: 0.0019 | VQ: 0.0006 | SSIM: 0.816 | Perplexity: 156.8
+  Batch [450/645] | Loss: 0.0022 | Recon: 0.0017 | VQ: 0.0005 | SSIM: 0.822 | Perplexity: 141.7
+  Batch [500/645] | Loss: 0.0023 | Recon: 0.0019 | VQ: 0.0005 | SSIM: 0.813 | Perplexity: 149.4
+  Batch [550/645] | Loss: 0.0028 | Recon: 0.0022 | VQ: 0.0006 | SSIM: 0.810 | Perplexity: 158.3
+  Batch [600/645] | Loss: 0.0022 | Recon: 0.0016 | VQ: 0.0006 | SSIM: 0.829 | Perplexity: 158.6
+
+Epoch 12 Summary (499.2s):
+  Train - Loss: 0.0024 | Recon: 0.0018 | VQ: 0.0006 | SSIM: 0.815
+  Val   - Loss: 0.0021 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.826
+  * New best SSIM: 0.826 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+
+Epoch 13/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0019 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.830 | Perplexity: 137.5
+  Batch [100/645] | Loss: 0.0024 | Recon: 0.0019 | VQ: 0.0006 | SSIM: 0.821 | Perplexity: 160.1
+  Batch [150/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.814 | Perplexity: 134.4
+  Batch [200/645] | Loss: 0.0022 | Recon: 0.0017 | VQ: 0.0005 | SSIM: 0.828 | Perplexity: 155.4
+  Batch [250/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.826 | Perplexity: 137.2
+  Batch [300/645] | Loss: 0.0023 | Recon: 0.0018 | VQ: 0.0005 | SSIM: 0.830 | Perplexity: 157.3
+  Batch [350/645] | Loss: 0.0023 | Recon: 0.0018 | VQ: 0.0005 | SSIM: 0.828 | Perplexity: 151.9
+  Batch [400/645] | Loss: 0.0020 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.821 | Perplexity: 141.5
+  Batch [450/645] | Loss: 0.0022 | Recon: 0.0018 | VQ: 0.0005 | SSIM: 0.826 | Perplexity: 152.7
+  Batch [500/645] | Loss: 0.0027 | Recon: 0.0022 | VQ: 0.0005 | SSIM: 0.816 | Perplexity: 149.7
+  Batch [550/645] | Loss: 0.0022 | Recon: 0.0017 | VQ: 0.0004 | SSIM: 0.831 | Perplexity: 142.0
+  Batch [600/645] | Loss: 0.0019 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.830 | Perplexity: 137.5
+
+Epoch 13 Summary (506.7s):
+  Train - Loss: 0.0022 | Recon: 0.0017 | VQ: 0.0005 | SSIM: 0.824
+  Val   - Loss: 0.0021 | Recon: 0.0017 | VQ: 0.0005 | SSIM: 0.827
+  * New best SSIM: 0.827 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+
+Epoch 14/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0021 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.829 | Perplexity: 157.3
+  Batch [100/645] | Loss: 0.0022 | Recon: 0.0017 | VQ: 0.0005 | SSIM: 0.823 | Perplexity: 158.0
+  Batch [150/645] | Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.821 | Perplexity: 142.7
+  Batch [200/645] | Loss: 0.0029 | Recon: 0.0024 | VQ: 0.0006 | SSIM: 0.806 | Perplexity: 161.1
+  Batch [250/645] | Loss: 0.0020 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.821 | Perplexity: 145.1
+  Batch [300/645] | Loss: 0.0022 | Recon: 0.0018 | VQ: 0.0004 | SSIM: 0.825 | Perplexity: 146.3
+  Batch [350/645] | Loss: 0.0022 | Recon: 0.0017 | VQ: 0.0005 | SSIM: 0.823 | Perplexity: 158.7
+  Batch [400/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.834 | Perplexity: 153.3
+  Batch [450/645] | Loss: 0.0024 | Recon: 0.0018 | VQ: 0.0006 | SSIM: 0.823 | Perplexity: 165.1
+  Batch [500/645] | Loss: 0.0023 | Recon: 0.0018 | VQ: 0.0005 | SSIM: 0.821 | Perplexity: 155.6
+  Batch [550/645] | Loss: 0.0026 | Recon: 0.0020 | VQ: 0.0006 | SSIM: 0.816 | Perplexity: 166.1
+  Batch [600/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0004 | SSIM: 0.836 | Perplexity: 147.9
+
+Epoch 14 Summary (501.5s):
+  Train - Loss: 0.0022 | Recon: 0.0017 | VQ: 0.0005 | SSIM: 0.826
+  Val   - Loss: 0.0020 | Recon: 0.0016 | VQ: 0.0004 | SSIM: 0.819
+
+Epoch 15/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0025 | Recon: 0.0019 | VQ: 0.0006 | SSIM: 0.822 | Perplexity: 162.0
+  Batch [100/645] | Loss: 0.0021 | Recon: 0.0017 | VQ: 0.0005 | SSIM: 0.823 | Perplexity: 151.0
+  Batch [150/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.837 | Perplexity: 162.2
+  Batch [200/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.828 | Perplexity: 135.8
+  Batch [250/645] | Loss: 0.0019 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.830 | Perplexity: 152.5
+  Batch [300/645] | Loss: 0.0020 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.837 | Perplexity: 149.8
+  Batch [350/645] | Loss: 0.0027 | Recon: 0.0020 | VQ: 0.0007 | SSIM: 0.809 | Perplexity: 171.9
+  Batch [400/645] | Loss: 0.0030 | Recon: 0.0025 | VQ: 0.0005 | SSIM: 0.819 | Perplexity: 159.0
+  Batch [450/645] | Loss: 0.0022 | Recon: 0.0016 | VQ: 0.0006 | SSIM: 0.830 | Perplexity: 163.0
+  Batch [500/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.838 | Perplexity: 146.7
+  Batch [550/645] | Loss: 0.0023 | Recon: 0.0018 | VQ: 0.0005 | SSIM: 0.828 | Perplexity: 144.2
+  Batch [600/645] | Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0004 | SSIM: 0.828 | Perplexity: 147.4
+
+Epoch 15 Summary (1229.0s):
+  Train - Loss: 0.0021 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.830
+  Val   - Loss: 0.0022 | Recon: 0.0017 | VQ: 0.0005 | SSIM: 0.814
+Reconstruction visualization saved to outputs\visualizations\reconstructions_epoch15.png
+Reconstruction visualization saved to markdown_images\reconstruction_epoch_15.png
+Training history plot saved to outputs\training_history.png
+Separate loss plot saved to markdown_images\training_validation_losses.png
+Separate SSIM plot saved to markdown_images\ssim_scores_over_epochs.png
+
+Epoch 16/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0020 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.826 | Perplexity: 159.8
+  Batch [100/645] | Loss: 0.0020 | Recon: 0.0016 | VQ: 0.0004 | SSIM: 0.832 | Perplexity: 136.1
+  Batch [150/645] | Loss: 0.0020 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.838 | Perplexity: 159.2
+  Batch [200/645] | Loss: 0.0020 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.830 | Perplexity: 150.9
+  Batch [250/645] | Loss: 0.0022 | Recon: 0.0017 | VQ: 0.0005 | SSIM: 0.836 | Perplexity: 164.5
+  Batch [300/645] | Loss: 0.0019 | Recon: 0.0016 | VQ: 0.0004 | SSIM: 0.842 | Perplexity: 139.3
+  Batch [350/645] | Loss: 0.0022 | Recon: 0.0017 | VQ: 0.0004 | SSIM: 0.837 | Perplexity: 155.4
+  Batch [400/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0004 | SSIM: 0.840 | Perplexity: 150.6
+  Batch [450/645] | Loss: 0.0023 | Recon: 0.0018 | VQ: 0.0004 | SSIM: 0.825 | Perplexity: 157.3
+  Batch [500/645] | Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.836 | Perplexity: 164.2
+  Batch [550/645] | Loss: 0.0019 | Recon: 0.0015 | VQ: 0.0004 | SSIM: 0.842 | Perplexity: 150.2
+  Batch [600/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.836 | Perplexity: 161.8
+
+Epoch 16 Summary (540.5s):
+  Train - Loss: 0.0021 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.833
+  Val   - Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0004 | SSIM: 0.837
+  * New best SSIM: 0.837 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+
+Epoch 17/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0004 | SSIM: 0.837 | Perplexity: 157.0
+  Batch [100/645] | Loss: 0.0021 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.837 | Perplexity: 162.1
+  Batch [150/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.835 | Perplexity: 159.2
+  Batch [200/645] | Loss: 0.0019 | Recon: 0.0015 | VQ: 0.0004 | SSIM: 0.841 | Perplexity: 148.0
+  Batch [250/645] | Loss: 0.0019 | Recon: 0.0015 | VQ: 0.0004 | SSIM: 0.830 | Perplexity: 157.0
+  Batch [300/645] | Loss: 0.0023 | Recon: 0.0017 | VQ: 0.0006 | SSIM: 0.829 | Perplexity: 169.4
+  Batch [350/645] | Loss: 0.0019 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.835 | Perplexity: 159.4
+  Batch [400/645] | Loss: 0.0020 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.837 | Perplexity: 153.4
+  Batch [450/645] | Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.841 | Perplexity: 151.3
+  Batch [500/645] | Loss: 0.0027 | Recon: 0.0020 | VQ: 0.0007 | SSIM: 0.825 | Perplexity: 170.9
+  Batch [550/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.838 | Perplexity: 155.9
+  Batch [600/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.841 | Perplexity: 152.8
+
+Epoch 17 Summary (546.4s):
+  Train - Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.837
+  Val   - Loss: 0.0058 | Recon: 0.0047 | VQ: 0.0010 | SSIM: 0.719
+
+Epoch 18/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0022 | Recon: 0.0017 | VQ: 0.0005 | SSIM: 0.831 | Perplexity: 162.1
+  Batch [100/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.830 | Perplexity: 155.6
+  Batch [150/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.831 | Perplexity: 169.7
+  Batch [200/645] | Loss: 0.0019 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.837 | Perplexity: 158.5
+  Batch [250/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.832 | Perplexity: 155.9
+  Batch [300/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.833 | Perplexity: 162.0
+  Batch [350/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.837 | Perplexity: 161.3
+  Batch [400/645] | Loss: 0.0020 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.833 | Perplexity: 160.6
+  Batch [450/645] | Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0004 | SSIM: 0.845 | Perplexity: 145.6
+  Batch [500/645] | Loss: 0.0019 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.840 | Perplexity: 163.5
+  Batch [550/645] | Loss: 0.0024 | Recon: 0.0018 | VQ: 0.0006 | SSIM: 0.807 | Perplexity: 166.8
+  Batch [600/645] | Loss: 0.0022 | Recon: 0.0017 | VQ: 0.0005 | SSIM: 0.833 | Perplexity: 167.2
+
+Epoch 18 Summary (542.3s):
+  Train - Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.838
+  Val   - Loss: 0.0019 | Recon: 0.0015 | VQ: 0.0004 | SSIM: 0.842
+  * New best SSIM: 0.842 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+
+Epoch 19/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0021 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.833 | Perplexity: 161.8
+  Batch [100/645] | Loss: 0.0019 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.835 | Perplexity: 165.2
+  Batch [150/645] | Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.847 | Perplexity: 163.6
+  Batch [200/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.836 | Perplexity: 159.2
+  Batch [250/645] | Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0004 | SSIM: 0.848 | Perplexity: 153.7
+  Batch [300/645] | Loss: 0.0021 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.840 | Perplexity: 157.8
+  Batch [350/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.840 | Perplexity: 165.1
+  Batch [400/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.844 | Perplexity: 147.5
+  Batch [450/645] | Loss: 0.0024 | Recon: 0.0019 | VQ: 0.0005 | SSIM: 0.818 | Perplexity: 150.6
+  Batch [500/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.837 | Perplexity: 166.4
+  Batch [550/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.836 | Perplexity: 166.1
+  Batch [600/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0004 | SSIM: 0.837 | Perplexity: 158.5
+
+Epoch 19 Summary (547.1s):
+  Train - Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.839
+  Val   - Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.847
+  * New best SSIM: 0.847 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+
+Epoch 20/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0021 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.843 | Perplexity: 161.7
+  Batch [100/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.845 | Perplexity: 147.0
+  Batch [150/645] | Loss: 0.0022 | Recon: 0.0016 | VQ: 0.0006 | SSIM: 0.827 | Perplexity: 170.4
+  Batch [200/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.849 | Perplexity: 147.9
+  Batch [250/645] | Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.845 | Perplexity: 163.2
+  Batch [300/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.847 | Perplexity: 157.8
+  Batch [350/645] | Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.845 | Perplexity: 159.4
+  Batch [400/645] | Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0004 | SSIM: 0.837 | Perplexity: 151.4
+  Batch [450/645] | Loss: 0.0016 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.848 | Perplexity: 152.8
+  Batch [500/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.854 | Perplexity: 161.0
+  Batch [550/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.845 | Perplexity: 157.7
+  Batch [600/645] | Loss: 0.0021 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.838 | Perplexity: 163.8
+
+Epoch 20 Summary (553.5s):
+  Train - Loss: 0.0019 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.842
+  Val   - Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0004 | SSIM: 0.846
+Checkpoint saved to outputs\checkpoints\checkpoint_epoch20.pt
+Reconstruction visualization saved to outputs\visualizations\reconstructions_epoch20.png
+Reconstruction visualization saved to markdown_images\reconstruction_epoch_20.png
+Training history plot saved to outputs\training_history.png
+Separate loss plot saved to markdown_images\training_validation_losses.png
+Separate SSIM plot saved to markdown_images\ssim_scores_over_epochs.png
+
+Epoch 21/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0004 | SSIM: 0.842 | Perplexity: 155.3
+  Batch [100/645] | Loss: 0.0022 | Recon: 0.0016 | VQ: 0.0006 | SSIM: 0.848 | Perplexity: 163.3
+  Batch [150/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0006 | SSIM: 0.844 | Perplexity: 174.9
+  Batch [200/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.849 | Perplexity: 143.4
+  Batch [250/645] | Loss: 0.0024 | Recon: 0.0017 | VQ: 0.0006 | SSIM: 0.833 | Perplexity: 174.9
+  Batch [300/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.835 | Perplexity: 154.7
+  Batch [350/645] | Loss: 0.0022 | Recon: 0.0016 | VQ: 0.0006 | SSIM: 0.832 | Perplexity: 169.9
+  Batch [400/645] | Loss: 0.0021 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.835 | Perplexity: 164.6
+  Batch [450/645] | Loss: 0.0021 | Recon: 0.0017 | VQ: 0.0005 | SSIM: 0.840 | Perplexity: 167.0
+  Batch [500/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.848 | Perplexity: 160.1
+  Batch [550/645] | Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0004 | SSIM: 0.853 | Perplexity: 155.1
+  Batch [600/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.837 | Perplexity: 166.1
+
+Epoch 21 Summary (561.1s):
+  Train - Loss: 0.0019 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.843
+  Val   - Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.845
+
+Epoch 22/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0004 | SSIM: 0.845 | Perplexity: 150.1
+  Batch [100/645] | Loss: 0.0026 | Recon: 0.0021 | VQ: 0.0005 | SSIM: 0.834 | Perplexity: 161.9
+  Batch [150/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.851 | Perplexity: 158.3
+  Batch [200/645] | Loss: 0.0021 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.839 | Perplexity: 161.0
+  Batch [250/645] | Loss: 0.0019 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.838 | Perplexity: 168.7
+  Batch [300/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0004 | SSIM: 0.852 | Perplexity: 159.1
+  Batch [350/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.845 | Perplexity: 170.3
+  Batch [400/645] | Loss: 0.0034 | Recon: 0.0023 | VQ: 0.0010 | SSIM: 0.786 | Perplexity: 140.1
+  Batch [450/645] | Loss: 0.0025 | Recon: 0.0019 | VQ: 0.0006 | SSIM: 0.824 | Perplexity: 173.9
+  Batch [500/645] | Loss: 0.0022 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.833 | Perplexity: 169.5
+  Batch [550/645] | Loss: 0.0025 | Recon: 0.0020 | VQ: 0.0005 | SSIM: 0.827 | Perplexity: 158.7
+  Batch [600/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.837 | Perplexity: 159.8
+
+Epoch 22 Summary (562.4s):
+  Train - Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.840
+  Val   - Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.846
+
+Epoch 23/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.849 | Perplexity: 147.8
+  Batch [100/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.853 | Perplexity: 158.1
+  Batch [150/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0004 | SSIM: 0.838 | Perplexity: 151.2
+  Batch [200/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.844 | Perplexity: 158.9
+  Batch [250/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0004 | SSIM: 0.849 | Perplexity: 153.0
+  Batch [300/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.845 | Perplexity: 169.7
+  Batch [350/645] | Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.846 | Perplexity: 160.7
+  Batch [400/645] | Loss: 0.0021 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.836 | Perplexity: 163.9
+  Batch [450/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.854 | Perplexity: 147.1
+  Batch [500/645] | Loss: 0.0022 | Recon: 0.0017 | VQ: 0.0005 | SSIM: 0.839 | Perplexity: 163.4
+  Batch [550/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.840 | Perplexity: 166.7
+  Batch [600/645] | Loss: 0.0021 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.849 | Perplexity: 150.2
+
+Epoch 23 Summary (561.7s):
+  Train - Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.845
+  Val   - Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.845
+
+Epoch 24/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.841 | Perplexity: 164.3
+  Batch [100/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.848 | Perplexity: 156.6
+  Batch [150/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.854 | Perplexity: 157.9
+  Batch [200/645] | Loss: 0.0022 | Recon: 0.0017 | VQ: 0.0005 | SSIM: 0.832 | Perplexity: 160.1
+  Batch [250/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.847 | Perplexity: 161.1
+  Batch [300/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.853 | Perplexity: 156.9
+  Batch [350/645] | Loss: 0.0020 | Recon: 0.0016 | VQ: 0.0004 | SSIM: 0.837 | Perplexity: 153.9
+  Batch [400/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.851 | Perplexity: 166.0
+  Batch [450/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.843 | Perplexity: 158.6
+  Batch [500/645] | Loss: 0.0020 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.835 | Perplexity: 157.5
+  Batch [550/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.844 | Perplexity: 158.4
+  Batch [600/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.848 | Perplexity: 152.5
+
+Epoch 24 Summary (565.3s):
+  Train - Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.846
+  Val   - Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.850
+  * New best SSIM: 0.850 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+
+Epoch 25/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.855 | Perplexity: 155.4
+  Batch [100/645] | Loss: 0.0023 | Recon: 0.0018 | VQ: 0.0005 | SSIM: 0.842 | Perplexity: 165.1
+  Batch [150/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.845 | Perplexity: 170.4
+  Batch [200/645] | Loss: 0.0019 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.849 | Perplexity: 156.4
+  Batch [250/645] | Loss: 0.0021 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.843 | Perplexity: 164.5
+  Batch [300/645] | Loss: 0.0022 | Recon: 0.0015 | VQ: 0.0006 | SSIM: 0.832 | Perplexity: 168.6
+  Batch [350/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.850 | Perplexity: 156.3
+  Batch [400/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.842 | Perplexity: 164.5
+  Batch [450/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.851 | Perplexity: 157.3
+  Batch [500/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.850 | Perplexity: 156.5
+  Batch [550/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.847 | Perplexity: 164.2
+  Batch [600/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.847 | Perplexity: 162.1
+
+Epoch 25 Summary (576.4s):
+  Train - Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.845
+  Val   - Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.850
+Reconstruction visualization saved to outputs\visualizations\reconstructions_epoch25.png
+Reconstruction visualization saved to markdown_images\reconstruction_epoch_25.png
+Training history plot saved to outputs\training_history.png
+Separate loss plot saved to markdown_images\training_validation_losses.png
+Separate SSIM plot saved to markdown_images\ssim_scores_over_epochs.png
+
+Epoch 26/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0004 | SSIM: 0.847 | Perplexity: 153.7
+  Batch [100/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.851 | Perplexity: 159.2
+  Batch [150/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.856 | Perplexity: 149.9
+  Batch [200/645] | Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0004 | SSIM: 0.853 | Perplexity: 151.9
+  Batch [250/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.854 | Perplexity: 158.7
+  Batch [300/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.845 | Perplexity: 160.0
+  Batch [350/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.853 | Perplexity: 153.9
+  Batch [400/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.855 | Perplexity: 147.0
+  Batch [450/645] | Loss: 0.0021 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.839 | Perplexity: 162.1
+  Batch [500/645] | Loss: 0.0025 | Recon: 0.0020 | VQ: 0.0005 | SSIM: 0.825 | Perplexity: 168.4
+  Batch [550/645] | Loss: 0.0020 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.843 | Perplexity: 171.8
+  Batch [600/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.849 | Perplexity: 165.1
+
+Epoch 26 Summary (574.3s):
+  Train - Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.848
+  Val   - Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.853
+  * New best SSIM: 0.853 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+
+Epoch 27/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0022 | Recon: 0.0017 | VQ: 0.0005 | SSIM: 0.840 | Perplexity: 165.8
+  Batch [100/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.849 | Perplexity: 155.8
+  Batch [150/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.836 | Perplexity: 168.8
+  Batch [200/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.845 | Perplexity: 173.1
+  Batch [250/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.850 | Perplexity: 156.8
+  Batch [300/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.857 | Perplexity: 161.0
+  Batch [350/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.854 | Perplexity: 164.2
+  Batch [400/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.840 | Perplexity: 156.2
+  Batch [450/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.858 | Perplexity: 164.3
+  Batch [500/645] | Loss: 0.0022 | Recon: 0.0016 | VQ: 0.0006 | SSIM: 0.841 | Perplexity: 176.4
+  Batch [550/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.854 | Perplexity: 161.9
+  Batch [600/645] | Loss: 0.0020 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.845 | Perplexity: 162.6
+
+Epoch 27 Summary (579.0s):
+  Train - Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.850
+  Val   - Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.851
+
+Epoch 28/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.848 | Perplexity: 157.7
+  Batch [100/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.848 | Perplexity: 170.4
+  Batch [150/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.855 | Perplexity: 156.0
+  Batch [200/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.849 | Perplexity: 156.9
+  Batch [250/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.862 | Perplexity: 158.3
+  Batch [300/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.858 | Perplexity: 150.9
+  Batch [350/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.849 | Perplexity: 161.4
+  Batch [400/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.848 | Perplexity: 163.4
+  Batch [450/645] | Loss: 0.0021 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.842 | Perplexity: 165.7
+  Batch [500/645] | Loss: 0.0020 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.839 | Perplexity: 164.2
+  Batch [550/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.855 | Perplexity: 159.3
+  Batch [600/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.851 | Perplexity: 166.4
+
+Epoch 28 Summary (577.9s):
+  Train - Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.851
+  Val   - Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.853
+  * New best SSIM: 0.853 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+
+Epoch 29/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.845 | Perplexity: 164.3
+  Batch [100/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.854 | Perplexity: 163.3
+  Batch [150/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.855 | Perplexity: 161.6
+  Batch [200/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.849 | Perplexity: 159.6
+  Batch [250/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.849 | Perplexity: 155.1
+  Batch [300/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0005 | SSIM: 0.861 | Perplexity: 159.3
+  Batch [350/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.845 | Perplexity: 163.3
+  Batch [400/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.861 | Perplexity: 153.2
+  Batch [450/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.842 | Perplexity: 168.9
+  Batch [500/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.859 | Perplexity: 154.8
+  Batch [550/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.847 | Perplexity: 168.8
+  Batch [600/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.855 | Perplexity: 168.8
+
+Epoch 29 Summary (582.4s):
+  Train - Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.852
+  Val   - Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.856
+  * New best SSIM: 0.856 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+
+Epoch 30/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.857 | Perplexity: 161.9
+  Batch [100/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.849 | Perplexity: 169.8
+  Batch [150/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.852 | Perplexity: 165.6
+  Batch [200/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.858 | Perplexity: 162.6
+  Batch [250/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.852 | Perplexity: 163.8
+  Batch [300/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.855 | Perplexity: 160.3
+  Batch [350/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.859 | Perplexity: 154.6
+  Batch [400/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.851 | Perplexity: 168.4
+  Batch [450/645] | Loss: 0.0021 | Recon: 0.0015 | VQ: 0.0006 | SSIM: 0.841 | Perplexity: 174.9
+  Batch [500/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.859 | Perplexity: 153.0
+  Batch [550/645] | Loss: 0.0019 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.843 | Perplexity: 164.6
+  Batch [600/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.849 | Perplexity: 167.5
+
+Epoch 30 Summary (583.2s):
+  Train - Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.853
+  Val   - Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.853
+Checkpoint saved to outputs\checkpoints\checkpoint_epoch30.pt
+Reconstruction visualization saved to outputs\visualizations\reconstructions_epoch30.png
+Reconstruction visualization saved to markdown_images\reconstruction_epoch_30.png
+Training history plot saved to outputs\training_history.png
+Separate loss plot saved to markdown_images\training_validation_losses.png
+Separate SSIM plot saved to markdown_images\ssim_scores_over_epochs.png
+
+Epoch 31/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.854 | Perplexity: 157.7
+  Batch [100/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.848 | Perplexity: 162.1
+  Batch [150/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.854 | Perplexity: 163.8
+  Batch [200/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.858 | Perplexity: 157.4
+  Batch [250/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.862 | Perplexity: 167.1
+  Batch [300/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.855 | Perplexity: 161.4
+  Batch [350/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.860 | Perplexity: 158.4
+  Batch [400/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.856 | Perplexity: 143.9
+  Batch [450/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.858 | Perplexity: 157.9
+  Batch [500/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0004 | SSIM: 0.849 | Perplexity: 160.9
+  Batch [550/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.855 | Perplexity: 164.2
+  Batch [600/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.859 | Perplexity: 165.6
+
+Epoch 31 Summary (579.5s):
+  Train - Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.853
+  Val   - Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.859
+  * New best SSIM: 0.859 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+
+Epoch 32/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.862 | Perplexity: 161.8
+  Batch [100/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.843 | Perplexity: 171.8
+  Batch [150/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.860 | Perplexity: 160.4
+  Batch [200/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.855 | Perplexity: 155.3
+  Batch [250/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.850 | Perplexity: 171.8
+  Batch [300/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.848 | Perplexity: 169.2
+  Batch [350/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.852 | Perplexity: 175.6
+  Batch [400/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.859 | Perplexity: 162.0
+  Batch [450/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0006 | SSIM: 0.854 | Perplexity: 169.6
+  Batch [500/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.854 | Perplexity: 160.1
+  Batch [550/645] | Loss: 0.0021 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.842 | Perplexity: 170.9
+  Batch [600/645] | Loss: 0.0020 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.847 | Perplexity: 174.0
+
+Epoch 32 Summary (577.0s):
+  Train - Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.855
+  Val   - Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.856
+
+Epoch 33/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.858 | Perplexity: 163.2
+  Batch [100/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.850 | Perplexity: 162.5
+  Batch [150/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.857 | Perplexity: 163.0
+  Batch [200/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.855 | Perplexity: 160.4
+  Batch [250/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.856 | Perplexity: 157.3
+  Batch [300/645] | Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0004 | SSIM: 0.845 | Perplexity: 169.3
+  Batch [350/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.865 | Perplexity: 148.7
+  Batch [400/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.859 | Perplexity: 157.4
+  Batch [450/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.869 | Perplexity: 148.3
+  Batch [500/645] | Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0004 | SSIM: 0.850 | Perplexity: 151.4
+  Batch [550/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.844 | Perplexity: 162.1
+  Batch [600/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.853 | Perplexity: 166.7
+
+Epoch 33 Summary (579.9s):
+  Train - Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.856
+  Val   - Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.859
+  * New best SSIM: 0.859 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+
+Epoch 34/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.856 | Perplexity: 167.5
+  Batch [100/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.841 | Perplexity: 163.0
+  Batch [150/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.858 | Perplexity: 166.8
+  Batch [200/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.857 | Perplexity: 156.6
+  Batch [250/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.866 | Perplexity: 156.1
+  Batch [300/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.866 | Perplexity: 161.2
+  Batch [350/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.863 | Perplexity: 157.1
+  Batch [400/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.855 | Perplexity: 159.3
+  Batch [450/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.853 | Perplexity: 152.8
+  Batch [500/645] | Loss: 0.0021 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.851 | Perplexity: 164.8
+  Batch [550/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.852 | Perplexity: 162.6
+  Batch [600/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0005 | SSIM: 0.860 | Perplexity: 166.1
+
+Epoch 34 Summary (577.0s):
+  Train - Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.855
+  Val   - Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.859
+
+Epoch 35/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0005 | SSIM: 0.866 | Perplexity: 163.2
+  Batch [100/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.852 | Perplexity: 165.5
+  Batch [150/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.863 | Perplexity: 160.5
+  Batch [200/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.867 | Perplexity: 157.6
+  Batch [250/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.855 | Perplexity: 170.5
+  Batch [300/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.851 | Perplexity: 165.0
+  Batch [350/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.864 | Perplexity: 154.7
+  Batch [400/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0005 | SSIM: 0.862 | Perplexity: 164.7
+  Batch [450/645] | Loss: 0.0021 | Recon: 0.0017 | VQ: 0.0004 | SSIM: 0.854 | Perplexity: 154.0
+  Batch [500/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.865 | Perplexity: 160.1
+  Batch [550/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0005 | SSIM: 0.864 | Perplexity: 164.9
+  Batch [600/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.848 | Perplexity: 170.5
+
+Epoch 35 Summary (579.0s):
+  Train - Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.857
+  Val   - Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.854
+Reconstruction visualization saved to outputs\visualizations\reconstructions_epoch35.png
+Reconstruction visualization saved to markdown_images\reconstruction_epoch_35.png
+Training history plot saved to outputs\training_history.png
+Separate loss plot saved to markdown_images\training_validation_losses.png
+Separate SSIM plot saved to markdown_images\ssim_scores_over_epochs.png
+
+Epoch 36/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.853 | Perplexity: 178.5
+  Batch [100/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0006 | SSIM: 0.856 | Perplexity: 177.0
+  Batch [150/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.863 | Perplexity: 158.5
+  Batch [200/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.858 | Perplexity: 169.8
+  Batch [250/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.850 | Perplexity: 170.0
+  Batch [300/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.860 | Perplexity: 163.2
+  Batch [350/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.864 | Perplexity: 171.1
+  Batch [400/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.855 | Perplexity: 160.1
+  Batch [450/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.861 | Perplexity: 157.1
+  Batch [500/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.856 | Perplexity: 168.2
+  Batch [550/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.857 | Perplexity: 169.3
+  Batch [600/645] | Loss: 0.0025 | Recon: 0.0018 | VQ: 0.0007 | SSIM: 0.833 | Perplexity: 183.8
+
+Epoch 36 Summary (574.9s):
+  Train - Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.858
+  Val   - Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.859
+
+Epoch 37/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.870 | Perplexity: 159.8
+  Batch [100/645] | Loss: 0.0021 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.848 | Perplexity: 173.5
+  Batch [150/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.864 | Perplexity: 163.7
+  Batch [200/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.863 | Perplexity: 164.9
+  Batch [250/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.858 | Perplexity: 161.7
+  Batch [300/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.846 | Perplexity: 175.0
+  Batch [350/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.849 | Perplexity: 170.9
+  Batch [400/645] | Loss: 0.0020 | Recon: 0.0015 | VQ: 0.0005 | SSIM: 0.851 | Perplexity: 176.9
+  Batch [450/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.853 | Perplexity: 164.1
+  Batch [500/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0005 | SSIM: 0.868 | Perplexity: 169.0
+  Batch [550/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.864 | Perplexity: 153.0
+  Batch [600/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.855 | Perplexity: 167.2
+
+Epoch 37 Summary (582.2s):
+  Train - Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.858
+  Val   - Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.858
+
+Epoch 38/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.845 | Perplexity: 160.1
+  Batch [100/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.872 | Perplexity: 157.5
+  Batch [150/645] | Loss: 0.0013 | Recon: 0.0009 | VQ: 0.0004 | SSIM: 0.877 | Perplexity: 159.4
+  Batch [200/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.859 | Perplexity: 162.3
+  Batch [250/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.864 | Perplexity: 165.4
+  Batch [300/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.872 | Perplexity: 159.9
+  Batch [350/645] | Loss: 0.0025 | Recon: 0.0018 | VQ: 0.0007 | SSIM: 0.838 | Perplexity: 185.3
+  Batch [400/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.863 | Perplexity: 160.8
+  Batch [450/645] | Loss: 0.0020 | Recon: 0.0013 | VQ: 0.0006 | SSIM: 0.852 | Perplexity: 188.3
+  Batch [500/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.869 | Perplexity: 160.2
+  Batch [550/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.855 | Perplexity: 168.1
+  Batch [600/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.859 | Perplexity: 169.8
+
+Epoch 38 Summary (574.3s):
+  Train - Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.862
+  Val   - Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.864
+  * New best SSIM: 0.864 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+
+Epoch 39/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0004 | SSIM: 0.855 | Perplexity: 168.6
+  Batch [100/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.863 | Perplexity: 163.2
+  Batch [150/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.868 | Perplexity: 159.3
+  Batch [200/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.861 | Perplexity: 168.0
+  Batch [250/645] | Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.842 | Perplexity: 169.6
+  Batch [300/645] | Loss: 0.0013 | Recon: 0.0009 | VQ: 0.0004 | SSIM: 0.874 | Perplexity: 158.7
+  Batch [350/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.866 | Perplexity: 167.8
+  Batch [400/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.865 | Perplexity: 161.6
+  Batch [450/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.874 | Perplexity: 162.7
+  Batch [500/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.866 | Perplexity: 161.7
+  Batch [550/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.861 | Perplexity: 167.5
+  Batch [600/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.861 | Perplexity: 167.0
+
+Epoch 39 Summary (575.9s):
+  Train - Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.862
+  Val   - Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.863
+
+Epoch 40/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.868 | Perplexity: 161.0
+  Batch [100/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.869 | Perplexity: 160.3
+  Batch [150/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.866 | Perplexity: 160.3
+  Batch [200/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.861 | Perplexity: 156.9
+  Batch [250/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.861 | Perplexity: 176.8
+  Batch [300/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.867 | Perplexity: 150.1
+  Batch [350/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.855 | Perplexity: 162.4
+  Batch [400/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.858 | Perplexity: 170.1
+  Batch [450/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.862 | Perplexity: 162.6
+  Batch [500/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.868 | Perplexity: 165.7
+  Batch [550/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.859 | Perplexity: 166.7
+  Batch [600/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.849 | Perplexity: 172.8
+
+Epoch 40 Summary (577.8s):
+  Train - Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.863
+  Val   - Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.864
+  * New best SSIM: 0.864 *
+Checkpoint saved to outputs\checkpoints\checkpoint_epoch40.pt
+Checkpoint saved to outputs\checkpoints\best_model.pt
+Reconstruction visualization saved to outputs\visualizations\reconstructions_epoch40.png
+Reconstruction visualization saved to markdown_images\reconstruction_epoch_40.png
+Training history plot saved to outputs\training_history.png
+Separate loss plot saved to markdown_images\training_validation_losses.png
+Separate SSIM plot saved to markdown_images\ssim_scores_over_epochs.png
+
+Epoch 41/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.858 | Perplexity: 169.0
+  Batch [100/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.861 | Perplexity: 168.2
+  Batch [150/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.856 | Perplexity: 174.0
+  Batch [200/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.862 | Perplexity: 165.2
+  Batch [250/645] | Loss: 0.0021 | Recon: 0.0016 | VQ: 0.0005 | SSIM: 0.848 | Perplexity: 177.2
+  Batch [300/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.857 | Perplexity: 164.0
+  Batch [350/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.859 | Perplexity: 171.0
+  Batch [400/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.866 | Perplexity: 161.5
+  Batch [450/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.859 | Perplexity: 164.2
+  Batch [500/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.872 | Perplexity: 160.8
+  Batch [550/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.868 | Perplexity: 167.5
+  Batch [600/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.865 | Perplexity: 164.4
+
+Epoch 41 Summary (576.4s):
+  Train - Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.863
+  Val   - Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.866
+  * New best SSIM: 0.866 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+
+Epoch 42/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.864 | Perplexity: 164.2
+  Batch [100/645] | Loss: 0.0013 | Recon: 0.0009 | VQ: 0.0004 | SSIM: 0.869 | Perplexity: 153.8
+  Batch [150/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.857 | Perplexity: 169.2
+  Batch [200/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.862 | Perplexity: 166.1
+  Batch [250/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.866 | Perplexity: 165.3
+  Batch [300/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.863 | Perplexity: 160.9
+  Batch [350/645] | Loss: 0.0014 | Recon: 0.0009 | VQ: 0.0004 | SSIM: 0.875 | Perplexity: 161.7
+  Batch [400/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.856 | Perplexity: 169.3
+  Batch [450/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.858 | Perplexity: 166.2
+  Batch [500/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.861 | Perplexity: 176.2
+  Batch [550/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.859 | Perplexity: 163.9
+  Batch [600/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0005 | SSIM: 0.867 | Perplexity: 165.1
+
+Epoch 42 Summary (566.8s):
+  Train - Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.863
+  Val   - Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.863
+
+Epoch 43/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.877 | Perplexity: 153.8
+  Batch [100/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.852 | Perplexity: 173.3
+  Batch [150/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.866 | Perplexity: 156.4
+  Batch [200/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.867 | Perplexity: 164.2
+  Batch [250/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0005 | SSIM: 0.865 | Perplexity: 165.0
+  Batch [300/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.868 | Perplexity: 164.1
+  Batch [350/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.857 | Perplexity: 176.5
+  Batch [400/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.857 | Perplexity: 167.8
+  Batch [450/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.869 | Perplexity: 168.0
+  Batch [500/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.862 | Perplexity: 164.7
+  Batch [550/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.865 | Perplexity: 169.8
+  Batch [600/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.870 | Perplexity: 167.2
+
+Epoch 43 Summary (567.5s):
+  Train - Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.864
+  Val   - Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.866
+
+Epoch 44/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.862 | Perplexity: 165.1
+  Batch [100/645] | Loss: 0.0014 | Recon: 0.0009 | VQ: 0.0004 | SSIM: 0.872 | Perplexity: 152.7
+  Batch [150/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.862 | Perplexity: 164.6
+  Batch [200/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.856 | Perplexity: 174.6
+  Batch [250/645] | Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.854 | Perplexity: 170.9
+  Batch [300/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.871 | Perplexity: 164.6
+  Batch [350/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.863 | Perplexity: 174.5
+  Batch [400/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.859 | Perplexity: 168.7
+  Batch [450/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.865 | Perplexity: 167.0
+  Batch [500/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.867 | Perplexity: 169.5
+  Batch [550/645] | Loss: 0.0015 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.870 | Perplexity: 163.7
+  Batch [600/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.866 | Perplexity: 162.3
+
+Epoch 44 Summary (571.0s):
+  Train - Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.864
+  Val   - Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.865
+
+Epoch 45/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.857 | Perplexity: 176.5
+  Batch [100/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.853 | Perplexity: 170.5
+  Batch [150/645] | Loss: 0.0015 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.868 | Perplexity: 170.3
+  Batch [200/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.867 | Perplexity: 167.8
+  Batch [250/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0005 | SSIM: 0.867 | Perplexity: 177.0
+  Batch [300/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.863 | Perplexity: 166.3
+  Batch [350/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.846 | Perplexity: 173.6
+  Batch [400/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.862 | Perplexity: 172.7
+  Batch [450/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.866 | Perplexity: 165.3
+  Batch [500/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.869 | Perplexity: 159.5
+  Batch [550/645] | Loss: 0.0014 | Recon: 0.0009 | VQ: 0.0004 | SSIM: 0.876 | Perplexity: 162.3
+  Batch [600/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.869 | Perplexity: 163.1
+
+Epoch 45 Summary (573.5s):
+  Train - Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.864
+  Val   - Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0005 | SSIM: 0.866
+Reconstruction visualization saved to outputs\visualizations\reconstructions_epoch45.png
+Reconstruction visualization saved to markdown_images\reconstruction_epoch_45.png
+Training history plot saved to outputs\training_history.png
+Separate loss plot saved to markdown_images\training_validation_losses.png
+Separate SSIM plot saved to markdown_images\ssim_scores_over_epochs.png
+
+Epoch 46/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0004 | SSIM: 0.856 | Perplexity: 168.5
+  Batch [100/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.865 | Perplexity: 163.2
+  Batch [150/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.861 | Perplexity: 163.7
+  Batch [200/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.867 | Perplexity: 176.7
+  Batch [250/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.866 | Perplexity: 168.7
+  Batch [300/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.871 | Perplexity: 160.9
+  Batch [350/645] | Loss: 0.0015 | Recon: 0.0010 | VQ: 0.0005 | SSIM: 0.873 | Perplexity: 166.3
+  Batch [400/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.865 | Perplexity: 162.8
+  Batch [450/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0005 | SSIM: 0.871 | Perplexity: 168.4
+  Batch [500/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.868 | Perplexity: 166.2
+  Batch [550/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.863 | Perplexity: 172.9
+  Batch [600/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.862 | Perplexity: 173.9
+
+Epoch 46 Summary (564.9s):
+  Train - Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.864
+  Val   - Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.864
+
+Epoch 47/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.863 | Perplexity: 171.1
+  Batch [100/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.870 | Perplexity: 159.2
+  Batch [150/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.853 | Perplexity: 179.6
+  Batch [200/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.858 | Perplexity: 169.7
+  Batch [250/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.859 | Perplexity: 172.9
+  Batch [300/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0005 | SSIM: 0.863 | Perplexity: 169.9
+  Batch [350/645] | Loss: 0.0013 | Recon: 0.0009 | VQ: 0.0004 | SSIM: 0.874 | Perplexity: 162.3
+  Batch [400/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.863 | Perplexity: 166.2
+  Batch [450/645] | Loss: 0.0018 | Recon: 0.0014 | VQ: 0.0004 | SSIM: 0.851 | Perplexity: 169.5
+  Batch [500/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0005 | SSIM: 0.863 | Perplexity: 176.4
+  Batch [550/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.849 | Perplexity: 177.4
+  Batch [600/645] | Loss: 0.0019 | Recon: 0.0014 | VQ: 0.0005 | SSIM: 0.853 | Perplexity: 170.8
+
+Epoch 47 Summary (1423.4s):
+  Train - Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.865
+  Val   - Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.866
+
+Epoch 48/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0018 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.857 | Perplexity: 174.2
+  Batch [100/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.863 | Perplexity: 167.7
+  Batch [150/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0005 | SSIM: 0.869 | Perplexity: 168.9
+  Batch [200/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.872 | Perplexity: 160.1
+  Batch [250/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.865 | Perplexity: 169.1
+  Batch [300/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.867 | Perplexity: 167.1
+  Batch [350/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.870 | Perplexity: 160.1
+  Batch [400/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.868 | Perplexity: 171.5
+  Batch [450/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.858 | Perplexity: 166.3
+  Batch [500/645] | Loss: 0.0022 | Recon: 0.0017 | VQ: 0.0005 | SSIM: 0.837 | Perplexity: 174.9
+  Batch [550/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.865 | Perplexity: 174.8
+  Batch [600/645] | Loss: 0.0019 | Recon: 0.0013 | VQ: 0.0006 | SSIM: 0.863 | Perplexity: 177.4
+
+Epoch 48 Summary (527.8s):
+  Train - Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.866
+  Val   - Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.867
+  * New best SSIM: 0.867 *
+Checkpoint saved to outputs\checkpoints\best_model.pt
+
+Epoch 49/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0014 | Recon: 0.0009 | VQ: 0.0004 | SSIM: 0.869 | Perplexity: 166.1
+  Batch [100/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.867 | Perplexity: 172.8
+  Batch [150/645] | Loss: 0.0017 | Recon: 0.0013 | VQ: 0.0005 | SSIM: 0.860 | Perplexity: 172.0
+  Batch [200/645] | Loss: 0.0013 | Recon: 0.0009 | VQ: 0.0004 | SSIM: 0.869 | Perplexity: 158.3
+  Batch [250/645] | Loss: 0.0015 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.869 | Perplexity: 168.7
+  Batch [300/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.873 | Perplexity: 166.3
+  Batch [350/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0005 | SSIM: 0.868 | Perplexity: 167.6
+  Batch [400/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.868 | Perplexity: 166.6
+  Batch [450/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.865 | Perplexity: 164.3
+  Batch [500/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.868 | Perplexity: 169.0
+  Batch [550/645] | Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0005 | SSIM: 0.868 | Perplexity: 170.9
+  Batch [600/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.872 | Perplexity: 166.0
+
+Epoch 49 Summary (726.1s):
+  Train - Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.866
+  Val   - Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.866
+
+Epoch 50/50
+----------------------------------------------------------------------
+  Batch [50/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.868 | Perplexity: 165.3
+  Batch [100/645] | Loss: 0.0015 | Recon: 0.0011 | VQ: 0.0005 | SSIM: 0.870 | Perplexity: 170.7
+  Batch [150/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.867 | Perplexity: 173.6
+  Batch [200/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.874 | Perplexity: 161.7
+  Batch [250/645] | Loss: 0.0015 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.870 | Perplexity: 156.7
+  Batch [300/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.866 | Perplexity: 171.3
+  Batch [350/645] | Loss: 0.0017 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.861 | Perplexity: 170.1
+  Batch [400/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.866 | Perplexity: 166.0
+  Batch [450/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0004 | SSIM: 0.864 | Perplexity: 165.2
+  Batch [500/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.868 | Perplexity: 168.8
+  Batch [550/645] | Loss: 0.0014 | Recon: 0.0010 | VQ: 0.0004 | SSIM: 0.874 | Perplexity: 164.0
+  Batch [600/645] | Loss: 0.0016 | Recon: 0.0012 | VQ: 0.0005 | SSIM: 0.869 | Perplexity: 166.0
+
+Epoch 50 Summary (914.4s):
+  Train - Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0004 | SSIM: 0.866
+  Val   - Loss: 0.0016 | Recon: 0.0011 | VQ: 0.0005 | SSIM: 0.866
+Separate loss plot saved to markdown_images\training_validation_losses.png
+Separate SSIM plot saved to markdown_images\ssim_scores_over_epochs.png
+Checkpoint saved to outputs\checkpoints\final_model.pt
+Training history plot saved to outputs\final_training_history.png
+Separate loss plot saved to markdown_images\training_validation_losses.png
+Separate SSIM plot saved to markdown_images\ssim_scores_over_epochs.png
+Reconstruction visualization saved to markdown_images\reconstruction_epoch_50.png
+
+======================================================================
+TRAINING COMPLETE
+======================================================================
+Best validation SSIM: 0.867
+Checkpoints saved to: outputs\checkpoints
+Visualizations saved to: outputs\visualizations
+======================================================================

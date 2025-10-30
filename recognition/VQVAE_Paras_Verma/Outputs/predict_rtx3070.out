@@ -1,0 +1,97 @@
+(vqvae_env) PS D:\PatternAnalysisReport\PatternAnalysis-2025\recognition\VQVAE_Paras_Verma> 
+(vqvae_env) PS D:\PatternAnalysisReport\PatternAnalysis-2025\recognition\VQVAE_Paras_Verma> 
+(vqvae_env) PS D:\PatternAnalysisReport\PatternAnalysis-2025\recognition\VQVAE_Paras_Verma> 
+(vqvae_env) PS D:\PatternAnalysisReport\PatternAnalysis-2025\recognition\VQVAE_Paras_Verma> python predict.py --checkpoint outputs/checkpoints/best_model.pt --data-dir "D:\PatternAnalysisReport\PatternAnalysis-2025\recognition\VQVAE_Paras_Verma\keras_slices_data" --output outputs/predictions --batch-size 16 --num-visualize 16
+                                                                                                                                                                                                                                                                                                                                       16;1244fd55-0c2f-4145-be94-abfec2c5aa4e
+======================================================================
+VQ-VAE MODEL EVALUATION
+======================================================================
+Device: cpu
+Checkpoint: outputs/checkpoints/best_model.pt
+Data directory: D:\PatternAnalysisReport\PatternAnalysis-2025\recognition\VQVAE_Paras_Verma\keras_slices_data
+Output directory: outputs\predictions
+======================================================================
+
+Loading test dataset...
+Loading from test folder: D:\PatternAnalysisReport\PatternAnalysis-2025\recognition\VQVAE_Paras_Verma\keras_slices_data\keras_slices_test
+Found 540 test files
+test split: 540 samples
+Test batches: 34
+
+Loading VQ-VAE model...
+Traceback (most recent call last):
+  File "D:\PatternAnalysisReport\PatternAnalysis-2025\recognition\VQVAE_Paras_Verma\predict.py", line 365, in <module>
+    main(args)
+    ~~~~^^^^^^
+  File "D:\PatternAnalysisReport\PatternAnalysis-2025\recognition\VQVAE_Paras_Verma\predict.py", line 254, in main
+    ckpt = load_checkpoint(args.checkpoint, model=model)
+  File "D:\PatternAnalysisReport\PatternAnalysis-2025\recognition\VQVAE_Paras_Verma\utils.py", line 42, in load_checkpoint
+    ckpt = torch.load(path, map_location=device)
+  File "D:\PatternAnalysisReport\PatternAnalysis-2025\recognition\VQVAE_Paras_Verma\vqvae_env\Lib\site-packages\torch\serialization.py", line 1529, in load
+    raise pickle.UnpicklingError(_get_wo_message(str(e))) from None
+_pickle.UnpicklingError: Weights only load failed. This file can still be loaded, to do so you have two options, do those steps only if you trust the source of the checkpoint.
+        (1) In PyTorch 2.6, we changed the default value of the `weights_only` argument in `torch.load` from `False` to `True`. Re-running `torch.load` with `weights_only` set to `False` will likely succeed, but it can result in arbitrary code execution. Do it only if you got the file from a trusted source.
+        (2) Alternatively, to load with `weights_only=True` please check the recommended steps in the following error message.
+        WeightsUnpickler error: Unsupported global: GLOBAL numpy._core.multiarray.scalar was not an allowed global by default. Please use `torch.serialization.add_safe_globals([numpy._core.multiarray.scalar])` or the `torch.serialization.safe_globals([numpy._core.multiarray.scalar])` context manager to allowlist this global if you trust this class/function.
+
+Check the documentation of torch.load to learn more about types accepted by default with weights_only https://pytorch.org/docs/stable/generated/torch.load.html.
+(vqvae_env) PS D:\PatternAnalysisReport\PatternAnalysis-2025\recognition\VQVAE_Paras_Verma> python predict.py --checkpoint outputs/checkpoints/best_model.pt --data-dir "D:\PatternAnalysisReport\PatternAnalysis-2025\recognition\VQVAE_Paras_Verma\keras_slices_data" --output outputs/predictions --batch-size 16 --num-visualize 16
+                                                                                                                                                                                                                                                                                                                                       16;1244fd55-0c2f-4145-be94-abfec2c5aa4e
+======================================================================
+VQ-VAE MODEL EVALUATION
+======================================================================
+Device: cpu
+Checkpoint: outputs/checkpoints/best_model.pt
+Data directory: D:\PatternAnalysisReport\PatternAnalysis-2025\recognition\VQVAE_Paras_Verma\keras_slices_data
+Output directory: outputs\predictions
+======================================================================
+
+Loading test dataset...
+Loading from test folder: D:\PatternAnalysisReport\PatternAnalysis-2025\recognition\VQVAE_Paras_Verma\keras_slices_data\keras_slices_test
+Found 540 test files
+test split: 540 samples
+Test samples: 540
+Test batches: 34
+
+Loading VQ-VAE model...
+Model state loaded from outputs/checkpoints/best_model.pt
+Loaded checkpoint from epoch 48, best SSIM: 0.8671254969952095
+
+======================================================================
+RUNNING EVALUATION
+======================================================================
+
+Evaluating on 34 batches...
+  Processed 10/34 batches...
+  Processed 20/34 batches...
+  Processed 30/34 batches...
+
+======================================================================
+EVALUATION RESULTS
+======================================================================
+Number of samples: 540
+Mean SSIM: 0.8791 ± 0.0201
+Min SSIM: 0.8219
+Max SSIM: 0.9170
+Mean Reconstruction Loss: 0.000942
+
+Samples above target (SSIM > 0.6): 540 (100.0%)
+
+✓ SUCCESS: Mean SSIM 0.879 exceeds target 0.6!
+======================================================================
+
+Metrics saved to outputs\predictions\evaluation_metrics.json
+Reconstruction visualization saved to outputs\predictions\test_reconstructions.png
+SSIM distribution plot saved to outputs\predictions\ssim_distribution.png
+SSIM distribution also saved to markdown_images\ssim_distribution_test_set.png
+
+======================================================================
+EVALUATION COMPLETE
+======================================================================
+Results saved to: outputs\predictions
+  - Metrics: outputs\predictions\evaluation_metrics.json
+  - Reconstructions: outputs\predictions\test_reconstructions.png
+  - SSIM distribution: outputs\predictions\ssim_distribution.png
+======================================================================
+
+(vqvae_env) PS D:\PatternAnalysisReport\PatternAnalysis-2025\recognition\VQVAE_Paras_Verma> 

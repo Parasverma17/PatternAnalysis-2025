@@ -10,9 +10,7 @@ venv/
 env/
 
 # Outputs
-outputs/
 logs/
-*.pt
 *.pth
 *.pkl
 
